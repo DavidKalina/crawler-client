@@ -1,32 +1,141 @@
-import { Slider } from "@radix-ui/react-slider";
-import { Button } from "./ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "./ui/card";
-import { Input } from "./ui/input";
+"use client";
+
+import React, { useState } from "react";
+import { Globe, Layers, LinkIcon, Loader2 } from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Slider } from "@/components/ui/slider";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 
 const CrawlInitiator = () => {
+  const [depth, setDepth] = useState(3);
+  const [url, setUrl] = useState("");
+  const [allowedDomains, setAllowedDomains] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
+
+  const handleSubmit = async () => {
+    setIsLoading(true);
+    setError("");
+    setSuccess("");
+
+    try {
+      const response = await fetch("http://localhost:3000/api/crawl", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          startUrl: url,
+          maxDepth: depth,
+          allowedDomains: allowedDomains
+            ? allowedDomains.split(",").map((d) => d.trim())
+            : undefined,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || "Failed to start crawl");
+      }
+
+      setSuccess(`Crawl started successfully! Job ID: ${data.jobId}`);
+      setUrl("");
+      setAllowedDomains("");
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "An error occurred");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   return (
-    <Card className="mb-6">
-      <CardHeader>
-        <CardTitle>Start New Crawl</CardTitle>
-        <CardDescription>Configure and initiate a new web crawling operation</CardDescription>
-      </CardHeader>
-      <CardContent>
-        <div className="space-y-4">
-          <div>
-            <Input placeholder="Enter start URL (e.g., https://example.com)" className="mb-2" />
-          </div>
-          <div>
-            <label className="text-sm font-medium mb-2 block">Crawl Depth</label>
-            <div className="flex items-center gap-4">
-              <Slider defaultValue={[3]} max={5} min={1} step={1} className="w-48" />
-              <span className="text-sm">3 levels</span>
-            </div>
-          </div>
-          <div>
-            <Input placeholder="Allowed domains (optional, comma-separated)" />
-          </div>
-          <Button className="w-full">Start Crawl</Button>
+    <Card className="bg-white shadow-lg border-0 rounded-xl overflow-hidden">
+      <CardHeader className="space-y-1 pb-4">
+        <div className="flex items-center space-x-2">
+          <Globe className="h-5 w-5 text-blue-500" />
+          <CardTitle className="text-xl font-semibold">New Crawl</CardTitle>
         </div>
+      </CardHeader>
+
+      <CardContent className="space-y-6">
+        {error && (
+          <Alert variant="destructive">
+            <AlertDescription>{error}</AlertDescription>
+          </Alert>
+        )}
+
+        {success && (
+          <Alert>
+            <AlertDescription>{success}</AlertDescription>
+          </Alert>
+        )}
+
+        <div className="relative">
+          <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+            <LinkIcon className="h-4 w-4 text-gray-400" />
+          </div>
+          <Input
+            value={url}
+            onChange={(e) => setUrl(e.target.value)}
+            placeholder="https://example.com"
+            disabled={isLoading}
+            className="pl-10 bg-gray-50 border-gray-200 focus:border-blue-500 focus:ring-blue-500"
+          />
+        </div>
+
+        <div className="space-y-3">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-2">
+              <Layers className="h-4 w-4 text-gray-500" />
+              <span className="text-sm font-medium text-gray-700">Crawl Depth</span>
+            </div>
+            <span className="text-sm text-gray-500">{depth} levels</span>
+          </div>
+          <Slider
+            value={[depth]}
+            onValueChange={(value) => setDepth(value[0])}
+            max={5}
+            min={1}
+            step={1}
+            disabled={isLoading}
+            className="w-full"
+          />
+        </div>
+
+        <div className="relative">
+          <Input
+            value={allowedDomains}
+            onChange={(e) => setAllowedDomains(e.target.value)}
+            placeholder="Allowed domains (optional)"
+            disabled={isLoading}
+            className="bg-gray-50 border-gray-200 focus:border-blue-500 focus:ring-blue-500"
+          />
+          <div className="text-xs text-gray-500 mt-1 ml-1">
+            Separate multiple domains with commas
+          </div>
+        </div>
+
+        <Button
+          onClick={handleSubmit}
+          disabled={!url || isLoading}
+          className="w-full bg-blue-500 hover:bg-blue-600 text-white transition-colors duration-200"
+        >
+          {isLoading ? (
+            <>
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              Starting Crawl...
+            </>
+          ) : (
+            <>
+              <Globe className="mr-2 h-4 w-4" />
+              Start Crawling
+            </>
+          )}
+        </Button>
       </CardContent>
     </Card>
   );
