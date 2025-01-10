@@ -3,15 +3,37 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev",
+    "dev": "next dev -p 5000",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "docker:build": "docker build -t your-nextjs-app .",
+    "docker:build:prod": "docker build -t your-nextjs-app:prod --build-arg NODE_ENV=production .",
+    "docker:start": "docker run -p 5000:5000 your-nextjs-app",
+    "docker:start:detach": "docker run -d -p 5000:5000 your-nextjs-app",
+    "docker:stop": "docker stop $(docker ps -q --filter ancestor=your-nextjs-app)",
+    "docker:clean": "docker rm $(docker ps -a -q --filter ancestor=your-nextjs-app) && docker rmi your-nextjs-app",
+    "docker:logs": "docker logs $(docker ps -q --filter ancestor=your-nextjs-app)",
+    "docker:shell": "docker exec -it $(docker ps -q --filter ancestor=your-nextjs-app) /bin/sh",
+    "docker:prune": "docker system prune -f",
+    "docker:compose:up": "docker-compose up",
+    "docker:compose:down": "docker-compose down",
+    "docker:compose:build": "docker-compose build"
   },
   "dependencies": {
+    "@radix-ui/react-progress": "^1.1.1",
+    "@radix-ui/react-slider": "^1.2.2",
+    "@radix-ui/react-slot": "^1.1.1",
+    "@radix-ui/react-tabs": "^1.1.2",
+    "class-variance-authority": "^0.7.1",
+    "clsx": "^2.1.1",
+    "lucide-react": "^0.469.0",
+    "next": "15.1.4",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
-    "next": "15.1.4"
+    "tailwind-merge": "^2.6.0",
+    "tailwindcss-animate": "^1.0.7",
+    "uuid": "^11.0.5"
   },
   "devDependencies": {
     "typescript": "^5",
