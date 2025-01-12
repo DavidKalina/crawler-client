@@ -19,14 +19,14 @@ interface CrawlStats {
   avgTokens: number;
 }
 
-const CoreStats = () => {
+const CoreStats = ({ crawlJobId }: { crawlJobId: string }) => {
   const [stats, setStats] = useState<CrawlStats | null>(null);
   const supabase = createClient();
 
   useEffect(() => {
-    async function fetchCrawlStats(jobId: string) {
+    async function fetchCrawlStats() {
       const { data, error } = await supabase.rpc("get_crawl_stats", {
-        job_id: jobId,
+        job_id: crawlJobId,
       });
 
       console.log(data, error);
@@ -45,7 +45,7 @@ const CoreStats = () => {
         avgTokens: data.avgTokens,
       };
     }
-    fetchCrawlStats("80e579b7-1eb9-443e-b994-0af5dd1cc80e").then((data) => {
+    fetchCrawlStats().then((data) => {
       console.log(data);
       setStats(data);
     });

@@ -25,8 +25,8 @@ interface QueueStats {
   failedCount: number;
 }
 
-const fetchQueueStatus = async () => {
-  const response = await fetch("http://localhost:3000/api/queue/status");
+const fetchQueueStatus = async (crawlJobId: string) => {
+  const response = await fetch(`http://localhost:3000/api/queue/status/${crawlJobId}`);
   if (!response.ok) {
     throw new Error("Failed to fetch queue status");
   }
@@ -45,7 +45,7 @@ const setupWebSocket = (onUpdate: (data: any) => void): WebSocket => {
   return ws;
 };
 
-const QueueContainer = () => {
+const QueueContainer = ({ crawlJobId }: { crawlJobId: string }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [jobs, setJobs] = useState<Job[]>([]);
@@ -63,7 +63,7 @@ const QueueContainer = () => {
 
     setIsLoading(true);
     try {
-      const data = await fetchQueueStatus();
+      const data = await fetchQueueStatus(crawlJobId);
       setJobs(data.jobs);
       setQueueStats(data.queueStats);
     } catch (err) {

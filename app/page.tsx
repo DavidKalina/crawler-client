@@ -1,4 +1,3 @@
-// page.tsx
 import CrawlInitiator from "@/components/CrawlInitiator";
 import CrawlJobsTable from "@/components/CrawlJobTable";
 import { createClient } from "@/utils/supabase/server";

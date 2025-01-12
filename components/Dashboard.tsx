@@ -5,7 +5,7 @@ import CoreStats from "./CoreStats";
 import CrawlInitiator from "./CrawlInitiator";
 import QueueContainer from "./QueueMonitorContainer";
 
-const Dashboard = () => {
+const Dashboard = ({ crawlJobId }: { crawlJobId: string }) => {
   return (
     <div className="min-h-screen bg-gray-50 p-8">
       <div className="max-w-7xl mx-auto space-y-6">
@@ -36,10 +36,10 @@ const Dashboard = () => {
 
           {/* Right Column - 3/4 width */}
           <div className="lg:col-span-3 space-y-6">
-            <CoreStats />
+            <CoreStats crawlJobId={crawlJobId} />
 
             {/* Queue Monitor positioned below the results */}
-            <QueueContainer />
+            <QueueContainer crawlJobId={crawlJobId} />
           </div>
         </div>
       </div>
