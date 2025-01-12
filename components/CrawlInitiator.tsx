@@ -9,9 +9,9 @@ import { Slider } from "@/components/ui/slider";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 
 const CrawlInitiator = () => {
-  const [depth, setDepth] = useState(3);
-  const [url, setUrl] = useState("");
-  const [allowedDomains, setAllowedDomains] = useState("");
+  const [depth, setDepth] = useState(1);
+  const [url, setUrl] = useState("https://books.toscrape.com");
+  const [allowedDomains, setAllowedDomains] = useState("books.toscrape.com");
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");

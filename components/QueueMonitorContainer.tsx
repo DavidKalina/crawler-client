@@ -33,6 +33,7 @@ const fetchQueueStatus = async () => {
   return response.json();
 };
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const setupWebSocket = (onUpdate: (data: any) => void): WebSocket => {
   const ws = new WebSocket("ws://localhost:3000/ws");
 
@@ -74,6 +75,7 @@ const QueueContainer = () => {
   }, []); // No dependencies
 
   // WebSocket update handler - memoize to prevent recreating on every render
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const handleWebSocketUpdate = useCallback((data: any) => {
     setQueueStats(data.queueStats);
     setJobs((prevJobs) => {
@@ -111,7 +113,7 @@ const QueueContainer = () => {
   }, [loadQueueStatus]);
 
   return (
-    <div className="container mx-auto p-4">
+    <div className="container mx-auto">
       <QueueMonitor
         queueStats={queueStats}
         jobs={jobs}
