@@ -1,8 +1,48 @@
+import React from "react";
+import { Card, CardContent } from "@/components/ui/card";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Loader2 } from "lucide-react";
+import { createClient } from "@/utils/supabase/client";
 import CrawlInitiator from "@/components/CrawlInitiator";
 import CrawlJobsTable from "@/components/CrawlJobTable";
-import { createClient } from "@/utils/supabase/server";
 
-export default async function CrawlJobsPage() {
+const DashboardLayout = ({ children, isLoading, error }: any) => {
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="flex items-center space-x-2">
+          <Loader2 className="h-6 w-6 animate-spin" />
+          <p className="text-gray-600">Loading dashboard...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen bg-gray-50 p-8">
+        <div className="max-w-7xl mx-auto">
+          <Alert variant="destructive">
+            <AlertDescription>{error.message || "Error loading dashboard"}</AlertDescription>
+          </Alert>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="min-h-screen bg-gray-50">
+      <div className="p-8">
+        <div className="max-w-7xl mx-auto space-y-6">
+          <div className="grid grid-cols-4 gap-6">{children}</div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+// Updated page component using the dashboard layout
+const CrawlJobsPage = async () => {
   const supabase = await createClient();
 
   const { data: jobs, error } = await supabase
@@ -10,26 +50,16 @@ export default async function CrawlJobsPage() {
     .select("*")
     .order("created_at", { ascending: false });
 
-  if (error) {
-    console.error("Error fetching crawl jobs:", error);
-    // You might want to handle this error differently
-    return (
-      <div className="min-h-screen bg-gray-50 p-8">
-        <div className="max-w-7xl mx-auto">
-          <p className="text-red-500">Error loading crawl jobs</p>
-        </div>
-      </div>
-    );
-  }
-
   return (
-    <div className="grid grid-cols-4 gap-4 max-w-7xl h-screen items-center justify-center mx-auto">
+    <DashboardLayout error={error}>
       <div className="col-span-1">
         <CrawlInitiator />
       </div>
       <div className="col-span-3">
-        <CrawlJobsTable jobs={jobs || []} />
+        <CrawlJobsTable initialJobs={jobs || []} />
       </div>
-    </div>
+    </DashboardLayout>
   );
-}
+};
+
+export default CrawlJobsPage;

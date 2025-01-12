@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Slider } from "@/components/ui/slider";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { startCrawl } from "@/app/actions/initiateCrawl";
 
 const CrawlInitiator = () => {
   const [depth, setDepth] = useState(1);
@@ -22,27 +23,17 @@ const CrawlInitiator = () => {
     setSuccess("");
 
     try {
-      const response = await fetch("http://localhost:3000/api/crawl", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          startUrl: url,
-          maxDepth: depth,
-          allowedDomains: allowedDomains
-            ? allowedDomains.split(",").map((d) => d.trim())
-            : undefined,
-        }),
+      const result = await startCrawl({
+        startUrl: url,
+        maxDepth: depth,
+        allowedDomains: allowedDomains ? allowedDomains.split(",").map((d) => d.trim()) : undefined,
       });
 
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.error || "Failed to start crawl");
+      if (!result.success) {
+        throw new Error(result.error);
       }
 
-      setSuccess(`Crawl started successfully! Job ID: ${data.jobId}`);
+      setSuccess(`Crawl started successfully! Job ID: ${result.jobId}`);
       setUrl("");
       setAllowedDomains("");
     } catch (err) {
