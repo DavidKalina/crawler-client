@@ -1,8 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { RefreshCw } from "lucide-react";
-import ActiveCrawlCard from "./ActiveCrawlCard";
 import CoreStats from "./CoreStats";
-import CrawlInitiator from "./CrawlInitiator";
 import QueueContainer from "./QueueMonitorContainer";
 
 const Dashboard = ({ crawlJobId }: { crawlJobId: string }) => {
@@ -22,25 +20,12 @@ const Dashboard = ({ crawlJobId }: { crawlJobId: string }) => {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-          {/* Left Column - 1/4 width */}
-          <div className="lg:col-span-1">
-            <div className="space-y-6">
-              <CrawlInitiator />
-              <div className="space-y-4">
-                <h2 className="text-lg font-semibold">Active Crawls</h2>
-                <ActiveCrawlCard />
-              </div>
-            </div>
-          </div>
+        {/* Right Column - 3/4 width */}
+        <div className="lg:col-span-3 space-y-6">
+          <CoreStats crawlJobId={crawlJobId} />
 
-          {/* Right Column - 3/4 width */}
-          <div className="lg:col-span-3 space-y-6">
-            <CoreStats crawlJobId={crawlJobId} />
-
-            {/* Queue Monitor positioned below the results */}
-            <QueueContainer crawlJobId={crawlJobId} />
-          </div>
+          {/* Queue Monitor positioned below the results */}
+          <QueueContainer crawlJobId={crawlJobId} />
         </div>
       </div>
     </div>

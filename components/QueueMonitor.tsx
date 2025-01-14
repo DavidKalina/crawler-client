@@ -32,7 +32,7 @@ const QueueMonitor: React.FC<QueueMonitorProps> = ({
 }) => {
   const [selectedState, setSelectedState] = useState<JobState | "all">("all");
 
-  const totalJobs = Object.values(queueStats).reduce((sum, count) => sum + count, 0);
+  const totalJobs = Object.values(queueStats ?? {}).reduce((sum, count) => sum + count, 0);
   const progressValue = totalJobs > 0 ? (queueStats.completedCount / totalJobs) * 100 : 0;
   const filteredJobs =
     selectedState === "all" ? jobs : jobs.filter((job) => job.state === selectedState);
@@ -74,7 +74,7 @@ const QueueMonitor: React.FC<QueueMonitorProps> = ({
               <div className="space-y-2">
                 <Progress value={progressValue} className="h-1" />
                 <div className="grid grid-cols-4 gap-2 text-sm">
-                  {Object.entries(queueStats).map(([state, count]) => (
+                  {Object.entries(queueStats ?? {}).map(([state, count]) => (
                     <QueueStatsButton
                       key={state}
                       label={state.replace("Count", "")}

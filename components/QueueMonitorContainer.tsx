@@ -80,7 +80,7 @@ const QueueContainer = ({ crawlJobId }: { crawlJobId: string }) => {
     setQueueStats(data.queueStats);
     setJobs((prevJobs) => {
       const updatedJobs = [...prevJobs];
-      data.jobs.forEach((updatedJob: Job) => {
+      data.jobs?.forEach((updatedJob: Job) => {
         const index = updatedJobs.findIndex((job) => job.id === updatedJob.id);
         if (index !== -1) {
           updatedJobs[index] = updatedJob;

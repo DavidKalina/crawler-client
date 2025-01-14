@@ -1,10 +1,9 @@
-import React from "react";
-import { Card, CardContent } from "@/components/ui/card";
-import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Loader2 } from "lucide-react";
-import { createClient } from "@/utils/supabase/client";
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import CrawlInitiator from "@/components/CrawlInitiator";
 import CrawlJobsTable from "@/components/CrawlJobTable";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { createClient } from "@/utils/supabase/client";
+import { Loader2 } from "lucide-react";
 
 const DashboardLayout = ({ children, isLoading, error }: any) => {
   if (isLoading) {

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
 import React, { useEffect, useState } from "react";
@@ -13,6 +14,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { format } from "date-fns";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { createClient } from "@/utils/supabase/client";
 
 type CrawlJob = {
   id: string;
@@ -23,28 +25,6 @@ type CrawlJob = {
   completed_at: string | null;
   updated_at: string;
   metadata: Record<string, any>;
-};
-
-type CrawlStats = {
-  crawlId: string;
-  stats: {
-    total: number;
-    waiting: number;
-    active: number;
-    completed: number;
-    failed: number;
-  };
-  isComplete: boolean;
-};
-
-type WebSocketMessage = {
-  crawls: CrawlStats[];
-  queueStats: {
-    waitingCount: number;
-    activeCount: number;
-    completedCount: number;
-    failedCount: number;
-  };
 };
 
 const getStatusColor = (status: CrawlJob["status"]) => {
@@ -69,67 +49,67 @@ const getStatusColor = (status: CrawlJob["status"]) => {
 const CrawlJobsTable = ({ initialJobs }: { initialJobs: CrawlJob[] }) => {
   const router = useRouter();
   const [jobs, setJobs] = useState<CrawlJob[]>(initialJobs);
-  const [wsError, setWsError] = useState<string>("");
-  const [isConnected, setIsConnected] = useState(false);
+  const [error, setError] = useState<string>("");
+
+  const supabase = createClient();
 
   useEffect(() => {
-    const ws = new WebSocket("ws://localhost:3000");
+    // Subscribe to changes in the web_crawl_jobs table
+    const channel = supabase
+      .channel("web_crawl_jobs_changes")
+      .on(
+        "postgres_changes",
+        {
+          event: "*",
+          schema: "public",
+          table: "web_crawl_jobs",
+        },
+        (payload) => {
+          console.log("Received database change:", payload);
 
-    ws.onopen = () => {
-      console.log("WebSocket Connected");
-      setIsConnected(true);
-      setWsError("");
-    };
+          setJobs((currentJobs) => {
+            switch (payload.eventType) {
+              case "INSERT": {
+                // Add new job to the beginning of the list
+                const newJob = payload.new as CrawlJob;
+                const exists = currentJobs.some((job) => job.id === newJob.id);
+                if (exists) return currentJobs;
+                return [newJob, ...currentJobs];
+              }
 
-    ws.onmessage = (event) => {
-      try {
-        const data: WebSocketMessage = JSON.parse(event.data);
+              case "UPDATE": {
+                // Update existing job
+                const updatedJob = payload.new as CrawlJob;
+                return currentJobs.map((job) =>
+                  job.id === updatedJob.id ? { ...job, ...updatedJob } : job
+                );
+              }
 
-        setJobs((prevJobs) => {
-          const updatedJobs = [...prevJobs];
+              case "DELETE": {
+                // Remove job if deleted
+                const deletedId = payload.old.id;
+                return currentJobs.filter((job) => job.id !== deletedId);
+              }
 
-          data.crawls.forEach((crawlStats) => {
-            const jobIndex = updatedJobs.findIndex((job) => job.id === crawlStats.crawlId);
-
-            if (jobIndex !== -1) {
-              updatedJobs[jobIndex] = {
-                ...updatedJobs[jobIndex],
-                status: crawlStats.isComplete
-                  ? crawlStats.stats.failed > 0
-                    ? "failed"
-                    : "completed"
-                  : crawlStats.stats.active > 0
-                  ? "running"
-                  : "pending",
-                metadata: {
-                  ...updatedJobs[jobIndex].metadata,
-                  jobStats: crawlStats.stats,
-                },
-              };
+              default:
+                return currentJobs;
             }
           });
+        }
+      )
+      .subscribe((status) => {
+        if (status === "SUBSCRIBED") {
+          console.log("Successfully subscribed to database changes");
+        }
+        if (status === "CHANNEL_ERROR") {
+          setError("Failed to connect to realtime updates");
+        }
+      });
 
-          return updatedJobs;
-        });
-      } catch (error) {
-        console.error("Error processing WebSocket message:", error);
-        setWsError("Error processing real-time updates");
-      }
-    };
-
-    ws.onerror = (error) => {
-      console.error("WebSocket error:", error);
-      setWsError("Failed to connect to real-time updates");
-      setIsConnected(false);
-    };
-
-    ws.onclose = () => {
-      console.log("WebSocket Disconnected");
-      setIsConnected(false);
-    };
-
+    // Cleanup subscription
     return () => {
-      ws.close();
+      console.log("Cleaning up Supabase subscription");
+      supabase.removeChannel(channel);
     };
   }, []);
 
@@ -139,17 +119,9 @@ const CrawlJobsTable = ({ initialJobs }: { initialJobs: CrawlJob[] }) => {
 
   return (
     <div className="space-y-4">
-      {wsError && (
+      {error && (
         <Alert variant="destructive">
-          <AlertDescription>{wsError}</AlertDescription>
-        </Alert>
-      )}
-
-      {isConnected && (
-        <Alert>
-          <AlertDescription className="text-green-600">
-            ⚡ Real-time updates enabled
-          </AlertDescription>
+          <AlertDescription>{error}</AlertDescription>
         </Alert>
       )}
 

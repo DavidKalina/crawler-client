@@ -2,7 +2,7 @@
 
 import { createClient } from "@/utils/supabase/client";
 import { AlertCircle, Clock, Globe2, HardDrive, Hash } from "lucide-react";
-import { JSX, useEffect, useState } from "react";
+import { JSX, useEffect, useState, useCallback } from "react";
 
 interface StatItemProps {
   icon: JSX.ElementType;
@@ -19,37 +19,58 @@ interface CrawlStats {
   avgTokens: number;
 }
 
+const POLLING_INTERVAL = 5000; // 5 seconds
+
 const CoreStats = ({ crawlJobId }: { crawlJobId: string }) => {
   const [stats, setStats] = useState<CrawlStats | null>(null);
+  const [error, setError] = useState<string | null>(null);
   const supabase = createClient();
 
-  useEffect(() => {
-    async function fetchCrawlStats() {
+  const fetchCrawlStats = useCallback(async () => {
+    try {
       const { data, error } = await supabase.rpc("get_crawl_stats", {
         job_id: crawlJobId,
       });
 
-      console.log(data, error);
-
       if (error) throw error;
 
-      //   const duration = data.completed_at
-      //     ? formatDuration(new Date(data.completed_at) - new Date(data.created_at))
-      //     : "In Progress";
-
-      return {
+      const newStats = {
         pagesCrawled: parseInt(data.pagesCrawled || "0"),
         duration: data.duration,
         errors: parseInt(data.errors || "0"),
         totalSize: data.totalSize,
         avgTokens: data.avgTokens,
       };
+
+      // Only update state if the values have changed
+      setStats((current) => {
+        if (!current) return newStats;
+
+        // Check if any values have changed
+        const hasChanged = Object.keys(newStats).some(
+          (key) => newStats[key as keyof CrawlStats] !== current[key as keyof CrawlStats]
+        );
+
+        return hasChanged ? newStats : current;
+      });
+
+      setError(null);
+    } catch (err) {
+      console.error("Error fetching crawl stats:", err);
+      setError(err instanceof Error ? err.message : "Failed to fetch stats");
     }
-    fetchCrawlStats().then((data) => {
-      console.log(data);
-      setStats(data);
-    });
-  }, []);
+  }, [crawlJobId, supabase]);
+
+  useEffect(() => {
+    // Initial fetch
+    fetchCrawlStats();
+
+    // Set up polling
+    const pollInterval = setInterval(fetchCrawlStats, POLLING_INTERVAL);
+
+    // Cleanup interval on unmount
+    return () => clearInterval(pollInterval);
+  }, [fetchCrawlStats]);
 
   const StatItem = ({ icon: Icon, label, value, color }: StatItemProps) => (
     <div className="bg-white rounded-lg border border-gray-200 p-6 group hover:border-gray-300 transition-colors">
@@ -70,6 +91,14 @@ const CoreStats = ({ crawlJobId }: { crawlJobId: string }) => {
       </div>
     </div>
   );
+
+  if (error) {
+    return (
+      <div className="rounded-lg border border-red-200 bg-red-50 p-4 text-red-700">
+        Failed to load stats: {error}
+      </div>
+    );
+  }
 
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
