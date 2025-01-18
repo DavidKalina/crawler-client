@@ -1,6 +1,7 @@
 "use client";
 
-import React, { useState } from "react";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
@@ -9,11 +10,12 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Alert, AlertDescription } from "@/components/ui/alert";
+import { createClient } from "@/utils/supabase/client";
 import { Loader2 } from "lucide-react";
+import { useRouter } from "next/navigation";
+import React, { useState } from "react";
 
 interface LoginFormData {
   email: string;
@@ -21,12 +23,16 @@ interface LoginFormData {
 }
 
 const LoginPage = () => {
+  const router = useRouter();
+
   const [formData, setFormData] = useState<LoginFormData>({
     email: "",
     password: "",
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  const supabase = createClient();
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -42,13 +48,15 @@ const LoginPage = () => {
     setError(null);
 
     try {
-      // TODO: Implement Supabase authentication here
-      // const { data, error } = await supabase.auth.signInWithPassword({
-      //   email: formData.email,
-      //   password: formData.password,
-      // });
-      // if (error) throw error;
-      // Handle successful login (e.g., redirect to dashboard)
+      const { error } = await supabase.auth.signInWithPassword({
+        email: formData.email,
+        password: formData.password,
+      });
+
+      if (error) {
+        throw error;
+      }
+      router.push("/");
     } catch (err) {
       setError(err instanceof Error ? err.message : "An error occurred during login");
     } finally {
@@ -103,7 +111,7 @@ const LoginPage = () => {
             </Button>
             <div className="text-sm text-center text-gray-500">
               Don't have an account?{" "}
-              <a href="/signup" className="text-primary hover:underline">
+              <a href="/auth/register" className="text-primary hover:underline">
                 Sign up
               </a>
             </div>

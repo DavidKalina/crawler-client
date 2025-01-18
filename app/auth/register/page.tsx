@@ -50,19 +50,6 @@ const RegistrationPage = () => {
     }));
   };
 
-  const validateForm = (): string | null => {
-    if (!agreedToTerms) {
-      return "You must agree to the terms and conditions";
-    }
-    if (formData.password !== formData.confirmPassword) {
-      return "Passwords do not match";
-    }
-    if (formData.password.length < 8) {
-      return "Password must be at least 8 characters long";
-    }
-    return null;
-  };
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -89,7 +76,7 @@ const RegistrationPage = () => {
         }
 
         // Redirect to verification page
-        router.push("/auth/verify-email");
+        router.push("/");
       }
     } catch (error) {
       setError(error instanceof Error ? error.message : "Registration failed");
