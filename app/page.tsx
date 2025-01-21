@@ -1,6 +1,8 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import CrawlInitiator from "@/components/CrawlInitiator";
 import CrawlJobsTable from "@/components/CrawlJobTable";
+import QuotaDisplay from "@/components/QuotaDisplay";
+import QuotaDisplayWrapper from "@/components/QuotaDisplayWrapper";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { createClient } from "@/utils/supabase/client";
 import { Loader2 } from "lucide-react";
@@ -53,6 +55,7 @@ const CrawlJobsPage = async () => {
     <DashboardLayout error={error}>
       <div className="col-span-1">
         <CrawlInitiator />
+        <QuotaDisplayWrapper userId="96d0dad7-a7e0-4bf0-b04b-d5379a181ca9" />
       </div>
       <div className="col-span-3">
         <CrawlJobsTable initialJobs={jobs || []} />
