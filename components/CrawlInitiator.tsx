@@ -34,7 +34,7 @@ const CrawlInitiator = () => {
       }
 
       setSuccess(`Crawl started successfully! Job ID: ${result.jobId}`);
-      setUrl("");
+      setUrl((prev) => prev);
       setAllowedDomains("");
     } catch (err) {
       setError(err instanceof Error ? err.message : "An error occurred");
