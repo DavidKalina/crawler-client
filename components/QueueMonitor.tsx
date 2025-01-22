@@ -86,18 +86,8 @@ const QueueMonitor: React.FC<QueueMonitorProps> = ({
                 </div>
               </div>
 
-              <div className="flex items-center justify-between">
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => setSelectedState("all")}
-                  className={selectedState === "all" ? "bg-muted" : ""}
-                >
-                  All Jobs
-                </Button>
-                <div className="text-sm text-muted-foreground">
-                  Showing {filteredJobs.length} jobs
-                </div>
+              <div className="text-sm text-muted-foreground">
+                Showing {filteredJobs.length} jobs
               </div>
             </div>
 

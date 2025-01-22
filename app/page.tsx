@@ -21,7 +21,7 @@ const DashboardLayout = ({ children, isLoading, error }: any) => {
   if (error) {
     return (
       <div className="min-h-screen bg-gray-50 p-8">
-        <div className="max-w-7xl mx-auto">
+        <div className="max-w-8xl mx-auto">
           <Alert variant="destructive">
             <AlertDescription>{error.message || "Error loading dashboard"}</AlertDescription>
           </Alert>
@@ -32,7 +32,7 @@ const DashboardLayout = ({ children, isLoading, error }: any) => {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <div className="p-8">
+      <div className="py-12 px-8">
         <div className="max-w-8xl mx-auto space-y-6">
           <div className="grid grid-cols-5 gap-6">{children}</div>
         </div>

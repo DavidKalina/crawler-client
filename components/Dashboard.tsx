@@ -1,6 +1,5 @@
-import { Button } from "@/components/ui/button";
-import { RefreshCw } from "lucide-react";
 import CoreStats from "./CoreStats";
+import DownloadCrawledPages from "./DownloadCrawledPages";
 import QueueContainer from "./QueueMonitorContainer";
 
 const Dashboard = ({ crawlJobId }: { crawlJobId: string }) => {
@@ -10,13 +9,7 @@ const Dashboard = ({ crawlJobId }: { crawlJobId: string }) => {
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
           <h1 className="text-2xl sm:text-3xl font-bold">Web Crawler Dashboard</h1>
           <div className="flex gap-2 w-full sm:w-auto">
-            <Button variant="outline" size="sm" className="flex-1 sm:flex-initial">
-              <RefreshCw className="h-4 w-4 mr-2" />
-              Refresh
-            </Button>
-            <Button variant="outline" size="sm" className="flex-1 sm:flex-initial">
-              Clear Queue
-            </Button>
+            <DownloadCrawledPages crawlJobId={crawlJobId} />
           </div>
         </div>
 
