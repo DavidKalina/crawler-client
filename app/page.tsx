@@ -45,18 +45,24 @@ const DashboardLayout = ({ children, isLoading, error }: any) => {
 const CrawlJobsPage = async () => {
   const supabase = await createClient();
 
-  const { data: jobs, error } = await supabase
+  // Get initial data for first page
+  const { count } = await supabase
+    .from("web_crawl_jobs")
+    .select("*", { count: "exact", head: true });
+
+  const { data: initialJobs } = await supabase
     .from("web_crawl_jobs")
     .select("*")
-    .order("created_at", { ascending: false });
+    .order("created_at", { ascending: false })
+    .range(0, 9); // First 10 items
 
   return (
-    <DashboardLayout error={error}>
+    <DashboardLayout>
       <div className="col-span-1">
         <CrawlInitiator />
       </div>
       <div className="col-span-3">
-        <CrawlJobsTable initialJobs={jobs || []} />
+        <CrawlJobsTable initialJobs={initialJobs || []} initialTotal={count || 0} />
       </div>
       <div className="col-span-1">
         <QuotaDisplayWrapper />

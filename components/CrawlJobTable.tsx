@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
+// components/CrawlJobsTable.tsx
 "use client";
 
 import React, { useEffect, useState } from "react";
@@ -15,6 +15,7 @@ import { Badge } from "@/components/ui/badge";
 import { format } from "date-fns";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { createClient } from "@/utils/supabase/client";
+import { Button } from "@/components/ui/button";
 
 type CrawlJob = {
   id: string;
@@ -26,6 +27,13 @@ type CrawlJob = {
   updated_at: string;
   metadata: Record<string, any>;
 };
+
+interface PaginationState {
+  page: number;
+  pageSize: number;
+  total: number;
+  totalPages: number;
+}
 
 const getStatusColor = (status: CrawlJob["status"]) => {
   switch (status) {
@@ -46,15 +54,50 @@ const getStatusColor = (status: CrawlJob["status"]) => {
   }
 };
 
-const CrawlJobsTable = ({ initialJobs }: { initialJobs: CrawlJob[] }) => {
+const CrawlJobsTable = ({
+  initialJobs,
+  initialTotal,
+}: {
+  initialJobs: CrawlJob[];
+  initialTotal: number;
+}) => {
   const router = useRouter();
   const [jobs, setJobs] = useState<CrawlJob[]>(initialJobs);
   const [error, setError] = useState<string>("");
+  const [loading, setLoading] = useState(false);
+  const [pagination, setPagination] = useState<PaginationState>({
+    page: 1,
+    pageSize: 10,
+    total: initialTotal,
+    totalPages: Math.ceil(initialTotal / 10),
+  });
 
   const supabase = createClient();
 
+  const fetchJobs = async (page: number) => {
+    setLoading(true);
+    try {
+      const response = await fetch(`/api/jobs?page=${page}&pageSize=${pagination.pageSize}`);
+      const data = await response.json();
+
+      if (!response.ok) throw new Error(data.error);
+
+      setJobs(data.data);
+      setPagination({
+        page: data.page,
+        pageSize: data.pageSize,
+        total: data.total,
+        totalPages: data.totalPages,
+      });
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to fetch jobs");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
-    // Subscribe to changes in the web_crawl_jobs table
+    // Subscribe to real-time updates
     const channel = supabase
       .channel("web_crawl_jobs_changes")
       .on(
@@ -64,54 +107,21 @@ const CrawlJobsTable = ({ initialJobs }: { initialJobs: CrawlJob[] }) => {
           schema: "public",
           table: "web_crawl_jobs",
         },
-        (payload) => {
-          console.log("Received database change:", payload);
-
-          setJobs((currentJobs) => {
-            switch (payload.eventType) {
-              case "INSERT": {
-                // Add new job to the beginning of the list
-                const newJob = payload.new as CrawlJob;
-                const exists = currentJobs.some((job) => job.id === newJob.id);
-                if (exists) return currentJobs;
-                return [newJob, ...currentJobs];
-              }
-
-              case "UPDATE": {
-                // Update existing job
-                const updatedJob = payload.new as CrawlJob;
-                return currentJobs.map((job) =>
-                  job.id === updatedJob.id ? { ...job, ...updatedJob } : job
-                );
-              }
-
-              case "DELETE": {
-                // Remove job if deleted
-                const deletedId = payload.old.id;
-                return currentJobs.filter((job) => job.id !== deletedId);
-              }
-
-              default:
-                return currentJobs;
-            }
-          });
+        async (payload) => {
+          // Refetch current page to ensure consistency
+          await fetchJobs(pagination.page);
         }
       )
-      .subscribe((status) => {
-        if (status === "SUBSCRIBED") {
-          console.log("Successfully subscribed to database changes");
-        }
-        if (status === "CHANNEL_ERROR") {
-          setError("Failed to connect to realtime updates");
-        }
-      });
+      .subscribe();
 
-    // Cleanup subscription
     return () => {
-      console.log("Cleaning up Supabase subscription");
       supabase.removeChannel(channel);
     };
-  }, []);
+  }, [pagination.page]);
+
+  const handlePageChange = (newPage: number) => {
+    fetchJobs(newPage);
+  };
 
   const handleRowClick = (jobId: string) => {
     router.push(`/dashboard/${jobId}`);
@@ -125,16 +135,16 @@ const CrawlJobsTable = ({ initialJobs }: { initialJobs: CrawlJob[] }) => {
         </Alert>
       )}
 
-      <div className="rounded-md border">
+      <div className="rounded-xl border bg-white p-6">
         <Table>
           <TableHeader>
-            <TableRow>
-              <TableHead className="w-[200px]">Start URL</TableHead>
-              <TableHead>Status</TableHead>
-              <TableHead>Max Depth</TableHead>
-              <TableHead>Created At</TableHead>
-              <TableHead>Last Updated</TableHead>
-              <TableHead>Completed At</TableHead>
+            <TableRow className="hover:bg-gray-50">
+              <TableHead className="w-[200px] bg-white">Start URL</TableHead>
+              <TableHead className="bg-white">Status</TableHead>
+              <TableHead className="bg-white">Max Depth</TableHead>
+              <TableHead className="bg-white">Created At</TableHead>
+              <TableHead className="bg-white">Last Updated</TableHead>
+              <TableHead className="bg-white">Completed At</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -142,24 +152,53 @@ const CrawlJobsTable = ({ initialJobs }: { initialJobs: CrawlJob[] }) => {
               <TableRow
                 key={job.id}
                 onClick={() => handleRowClick(job.id)}
-                className="cursor-pointer hover:bg-gray-50"
+                className="cursor-pointer hover:bg-gray-50 bg-white"
               >
-                <TableCell className="font-medium">
+                <TableCell className="font-medium p-4">
                   <span className="truncate block max-w-[200px]">{job.start_url}</span>
                 </TableCell>
-                <TableCell>
+                <TableCell className="p-4">
                   <Badge className={`${getStatusColor(job.status)} text-white`}>{job.status}</Badge>
                 </TableCell>
-                <TableCell>{job.max_depth}</TableCell>
-                <TableCell>{format(new Date(job.created_at), "MMM d, yyyy HH:mm")}</TableCell>
-                <TableCell>{format(new Date(job.updated_at), "MMM d, yyyy HH:mm")}</TableCell>
-                <TableCell>
+                <TableCell className="p-4">{job.max_depth}</TableCell>
+                <TableCell className="p-4">
+                  {format(new Date(job.created_at), "MMM d, yyyy HH:mm")}
+                </TableCell>
+                <TableCell className="p-4">
+                  {format(new Date(job.updated_at), "MMM d, yyyy HH:mm")}
+                </TableCell>
+                <TableCell className="p-4">
                   {job.completed_at ? format(new Date(job.completed_at), "MMM d, yyyy HH:mm") : "-"}
                 </TableCell>
               </TableRow>
             ))}
           </TableBody>
         </Table>
+
+        <div className="mt-4 flex items-center justify-between px-2">
+          <div className="text-sm text-gray-500">
+            Showing {(pagination.page - 1) * pagination.pageSize + 1} to{" "}
+            {Math.min(pagination.page * pagination.pageSize, pagination.total)} of{" "}
+            {pagination.total} results
+          </div>
+
+          <div className="flex gap-2">
+            <Button
+              variant="outline"
+              onClick={() => handlePageChange(pagination.page - 1)}
+              disabled={pagination.page === 1 || loading}
+            >
+              Previous
+            </Button>
+            <Button
+              variant="outline"
+              onClick={() => handlePageChange(pagination.page + 1)}
+              disabled={pagination.page === pagination.totalPages || loading}
+            >
+              Next
+            </Button>
+          </div>
+        </div>
       </div>
     </div>
   );
