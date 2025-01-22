@@ -16,6 +16,13 @@ import { format } from "date-fns";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { createClient } from "@/utils/supabase/client";
 import { Button } from "@/components/ui/button";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 type CrawlJob = {
   id: string;
@@ -34,6 +41,17 @@ interface PaginationState {
   total: number;
   totalPages: number;
 }
+
+const statusOptions = [
+  { value: "all", label: "All Status" },
+  { value: "pending", label: "Pending" },
+  { value: "running", label: "Running" },
+  { value: "paused", label: "Paused" },
+  { value: "stopping", label: "Stopping" },
+  { value: "completed", label: "Completed" },
+  { value: "failed", label: "Failed" },
+  { value: "crawled", label: "Crawled" },
+];
 
 const getStatusColor = (status: CrawlJob["status"]) => {
   switch (status) {
@@ -65,6 +83,7 @@ const CrawlJobsTable = ({
   const [jobs, setJobs] = useState<CrawlJob[]>(initialJobs);
   const [error, setError] = useState<string>("");
   const [loading, setLoading] = useState(false);
+  const [selectedStatus, setSelectedStatus] = useState<string>("all");
   const [pagination, setPagination] = useState<PaginationState>({
     page: 1,
     pageSize: 10,
@@ -74,10 +93,12 @@ const CrawlJobsTable = ({
 
   const supabase = createClient();
 
-  const fetchJobs = async (page: number) => {
+  const fetchJobs = async (page: number, status: string) => {
     setLoading(true);
     try {
-      const response = await fetch(`/api/jobs?page=${page}&pageSize=${pagination.pageSize}`);
+      const response = await fetch(
+        `/api/jobs?page=${page}&pageSize=${pagination.pageSize}&status=${status}`
+      );
       const data = await response.json();
 
       if (!response.ok) throw new Error(data.error);
@@ -109,7 +130,7 @@ const CrawlJobsTable = ({
         },
         async (payload) => {
           // Refetch current page to ensure consistency
-          await fetchJobs(pagination.page);
+          await fetchJobs(pagination.page, selectedStatus);
         }
       )
       .subscribe();
@@ -117,10 +138,15 @@ const CrawlJobsTable = ({
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [pagination.page]);
+  }, [pagination.page, selectedStatus]);
 
   const handlePageChange = (newPage: number) => {
-    fetchJobs(newPage);
+    fetchJobs(newPage, selectedStatus);
+  };
+
+  const handleStatusChange = (newStatus: string) => {
+    setSelectedStatus(newStatus);
+    fetchJobs(1, newStatus); // Reset to first page when filter changes
   };
 
   const handleRowClick = (jobId: string) => {
@@ -134,6 +160,24 @@ const CrawlJobsTable = ({
           <AlertDescription>{error}</AlertDescription>
         </Alert>
       )}
+
+      <div className="flex justify-between items-center mb-4">
+        <h2 className="text-lg font-semibold">Crawl Jobs</h2>
+        <div className="w-[200px]">
+          <Select value={selectedStatus} onValueChange={handleStatusChange}>
+            <SelectTrigger>
+              <SelectValue placeholder="Filter by status" />
+            </SelectTrigger>
+            <SelectContent>
+              {statusOptions.map((option) => (
+                <SelectItem key={option.value} value={option.value}>
+                  {option.label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+      </div>
 
       <div className="rounded-xl border bg-white p-6">
         <Table>
@@ -172,12 +216,19 @@ const CrawlJobsTable = ({
                 </TableCell>
               </TableRow>
             ))}
+            {jobs.length === 0 && (
+              <TableRow>
+                <TableCell colSpan={6} className="text-center py-8 text-gray-500">
+                  No jobs found
+                </TableCell>
+              </TableRow>
+            )}
           </TableBody>
         </Table>
 
         <div className="mt-4 flex items-center justify-between px-2">
           <div className="text-sm text-gray-500">
-            Showing {(pagination.page - 1) * pagination.pageSize + 1} to{" "}
+            Showing {jobs.length > 0 ? (pagination.page - 1) * pagination.pageSize + 1 : 0} to{" "}
             {Math.min(pagination.page * pagination.pageSize, pagination.total)} of{" "}
             {pagination.total} results
           </div>

@@ -6,20 +6,32 @@ export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const page = parseInt(searchParams.get("page") || "1");
   const pageSize = parseInt(searchParams.get("pageSize") || "10");
+  const status = searchParams.get("status");
 
   const supabase = await createClient();
+  let query = supabase.from("web_crawl_jobs").select("*", { count: "exact" });
 
-  // Get total count
-  const { count } = await supabase
-    .from("web_crawl_jobs")
-    .select("*", { count: "exact", head: true });
+  // Apply status filter if provided
+  if (status && status !== "all") {
+    query = query.eq("status", status);
+  }
 
-  // Get paginated data
-  const { data, error } = await supabase
+  // Get total count with filters
+  const { count } = await query;
+
+  // Get paginated data with filters
+  let dataQuery = supabase
     .from("web_crawl_jobs")
     .select("*")
     .order("created_at", { ascending: false })
     .range((page - 1) * pageSize, page * pageSize - 1);
+
+  // Apply status filter if provided
+  if (status && status !== "all") {
+    dataQuery = dataQuery.eq("status", status);
+  }
+
+  const { data, error } = await dataQuery;
 
   if (error) {
     return NextResponse.json({ error: error.message }, { status: 500 });
