@@ -1,10 +1,9 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import CrawlInitiator from "@/components/CrawlInitiator";
 import CrawlJobsTable from "@/components/CrawlJobTable";
-import QuotaDisplay from "@/components/QuotaDisplay";
 import QuotaDisplayWrapper from "@/components/QuotaDisplayWrapper";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { createClient } from "@/utils/supabase/client";
+import { createClient } from "@/utils/supabase/server";
 import { Loader2 } from "lucide-react";
 
 const DashboardLayout = ({ children, isLoading, error }: any) => {
@@ -34,8 +33,8 @@ const DashboardLayout = ({ children, isLoading, error }: any) => {
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="p-8">
-        <div className="max-w-7xl mx-auto space-y-6">
-          <div className="grid grid-cols-4 gap-6">{children}</div>
+        <div className="max-w-8xl mx-auto space-y-6">
+          <div className="grid grid-cols-5 gap-6">{children}</div>
         </div>
       </div>
     </div>
@@ -55,10 +54,12 @@ const CrawlJobsPage = async () => {
     <DashboardLayout error={error}>
       <div className="col-span-1">
         <CrawlInitiator />
-        <QuotaDisplayWrapper userId="96d0dad7-a7e0-4bf0-b04b-d5379a181ca9" />
       </div>
       <div className="col-span-3">
         <CrawlJobsTable initialJobs={jobs || []} />
+      </div>
+      <div className="col-span-1">
+        <QuotaDisplayWrapper />
       </div>
     </DashboardLayout>
   );
