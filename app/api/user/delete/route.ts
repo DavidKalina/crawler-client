@@ -29,12 +29,6 @@ export async function DELETE(request: Request) {
       },
     });
 
-    // Start a transaction to delete all user data
-    // Note: Due to ON DELETE CASCADE, we don't need to explicitly delete from crawled_pages
-    // as it will be handled by the web_crawl_jobs deletion
-
-    // 1. Delete all web crawl jobs (this will cascade to crawled_pages)
-
     const { error: jobsDeleteError } = await adminClient
       .from("web_crawl_jobs")
       .delete()

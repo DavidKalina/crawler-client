@@ -23,11 +23,7 @@ const Navbar = () => {
     router.push("/auth/login");
   };
 
-  const navigationItems = [
-    { name: "Dashboard", href: "/dashboard" },
-    { name: "Projects", href: "/projects" },
-    { name: "Settings", href: "/settings" },
-  ];
+  const navigationItems = [{ name: "Settings", href: "/settings" }];
 
   return (
     <nav className="bg-white border-b border-gray-200">
