@@ -8,7 +8,7 @@ const QuotaDisplay = ({ monthlyQuota, firstMonthQuota, pagesUsed }: any) => {
   const usagePercentage = Math.min((pagesUsed / effectiveQuota) * 100, 100);
 
   return (
-    <Card className="w-full max-w-md">
+    <Card className="w-full max-w-2xl">
       <CardHeader>
         <CardTitle>Pages Quota</CardTitle>
       </CardHeader>

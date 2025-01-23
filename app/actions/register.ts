@@ -29,7 +29,7 @@ export async function createProfile({ userId, fullName, email, companyName }: Cr
         full_name: fullName,
         email: email,
         company_name: companyName,
-        monthly_quota: 1000,
+        monthly_quota: 5000,
         pages_used: 0,
         created_at: new Date().toISOString(),
       },
