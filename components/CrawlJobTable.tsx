@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 // components/CrawlJobsTable.tsx
 "use client";
 
@@ -16,6 +17,7 @@ import { format } from "date-fns";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { createClient } from "@/utils/supabase/client";
 import { Button } from "@/components/ui/button";
+import { Download } from "lucide-react";
 import {
   Select,
   SelectContent,
@@ -69,6 +71,60 @@ const getStatusColor = (status: CrawlJob["status"]) => {
       return "bg-purple-500";
     default:
       return "bg-gray-500";
+  }
+};
+
+const downloadPages = async (jobId: string) => {
+  try {
+    const supabase = createClient();
+    const { data, error } = await supabase
+      .from("crawled_pages")
+      .select("*")
+      .eq("crawl_job_id", jobId)
+      .order("created_at", { ascending: true });
+
+    if (error) {
+      console.error("Error fetching data:", error);
+      return;
+    }
+
+    // Convert data to CSV
+    const headers = [
+      "id",
+      "url",
+      "title",
+      "content_text",
+      "depth",
+      "created_at",
+      "processing_status",
+    ];
+    const csvContent = [
+      headers.join(","),
+      ...data.map((row) =>
+        headers
+          .map((header) => {
+            const value = row[header]?.toString() || "";
+            // Escape quotes and wrap in quotes if contains comma or newline
+            return value.includes(",") || value.includes("\n") || value.includes('"')
+              ? `"${value.replace(/"/g, '""')}"`
+              : value;
+          })
+          .join(",")
+      ),
+    ].join("\n");
+
+    // Create and trigger download
+    const blob = new Blob([csvContent], { type: "text/csv" });
+    const url = window.URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.setAttribute("download", `crawled-pages-${jobId}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    window.URL.revokeObjectURL(url);
+  } catch (error) {
+    console.error("Error processing download:", error);
   }
 };
 
@@ -128,7 +184,7 @@ const CrawlJobsTable = ({
           schema: "public",
           table: "web_crawl_jobs",
         },
-        async (payload) => {
+        async () => {
           // Refetch current page to ensure consistency
           await fetchJobs(pagination.page, selectedStatus);
         }
@@ -189,6 +245,7 @@ const CrawlJobsTable = ({
               <TableHead className="bg-white">Created At</TableHead>
               <TableHead className="bg-white">Last Updated</TableHead>
               <TableHead className="bg-white">Completed At</TableHead>
+              <TableHead className="bg-white">Actions</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -214,11 +271,25 @@ const CrawlJobsTable = ({
                 <TableCell className="p-4">
                   {job.completed_at ? format(new Date(job.completed_at), "MMM d, yyyy HH:mm") : "-"}
                 </TableCell>
+                <TableCell className="p-4">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="flex items-center gap-2"
+                    onClick={(e) => {
+                      e.stopPropagation(); // Prevent row click when clicking download
+                      downloadPages(job.id);
+                    }}
+                  >
+                    <Download className="h-4 w-4" />
+                    Download
+                  </Button>
+                </TableCell>
               </TableRow>
             ))}
             {jobs.length === 0 && (
               <TableRow>
-                <TableCell colSpan={6} className="text-center py-8 text-gray-500">
+                <TableCell colSpan={7} className="text-center py-8 text-gray-500">
                   No jobs found
                 </TableCell>
               </TableRow>
