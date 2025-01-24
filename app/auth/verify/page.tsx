@@ -24,6 +24,7 @@ export default function VerifyPage() {
   >(null);
   const [error, setError] = useState<string | null>(null);
   const [resending, setResending] = useState(false);
+
   const [resendSuccess, setResendSuccess] = useState(false);
   const [resendCount, setResendCount] = useState(0);
 
@@ -47,10 +48,13 @@ export default function VerifyPage() {
 
       const verifyEmailWithSupabase = async () => {
         try {
-          const { error } = await supabase.auth.verifyOtp({
-            token_hash: token,
+          const { data, error } = await supabase.auth.verifyOtp({
+            email: email!,
+            token: token,
             type: "signup",
           });
+
+          console.log("DATA", data, "ERROR", error);
 
           if (error) throw error;
 
