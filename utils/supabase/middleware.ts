@@ -2,8 +2,10 @@ import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 
 export async function updateSession(request: NextRequest) {
-  let supabaseResponse = NextResponse.next({
-    request,
+  let response = NextResponse.next({
+    request: {
+      headers: request.headers,
+    },
   });
 
   const supabase = createServerClient(
@@ -16,24 +18,37 @@ export async function updateSession(request: NextRequest) {
         },
         setAll(cookiesToSet) {
           cookiesToSet.forEach(({ name, value, options }) => request.cookies.set(name, value));
-          supabaseResponse = NextResponse.next({
+          response = NextResponse.next({
             request,
           });
           cookiesToSet.forEach(({ name, value, options }) =>
-            supabaseResponse.cookies.set(name, value, options)
+            response.cookies.set(name, value, options)
           );
         },
       },
     }
   );
 
+  // Get the current path and search params
+  const path = request.nextUrl.pathname;
+  const searchParams = request.nextUrl.searchParams;
+
+  const isVerificationFlow =
+    path === "/auth/verify" &&
+    (searchParams.has("token") ||
+      searchParams.has("error") ||
+      searchParams.has("error_code") ||
+      searchParams.has("handled"));
+
+  // Special handling for auth callback and verification flow
+  if (path === "/auth/callback" || isVerificationFlow) {
+    return response;
+  }
+
   // IMPORTANT: DO NOT REMOVE auth.getUser()
   const {
     data: { user },
   } = await supabase.auth.getUser();
-
-  // Get the current path
-  const path = request.nextUrl.pathname;
 
   // Public paths that don't require authentication
   const isPublicPath =
@@ -49,7 +64,6 @@ export async function updateSession(request: NextRequest) {
   const isRegisterPath = path.includes("/auth/register");
 
   if (!user && !isPublicPath) {
-    // No user and trying to access protected route - redirect to login
     const url = request.nextUrl.clone();
     url.pathname = "/auth/login";
     return NextResponse.redirect(url);
@@ -68,12 +82,16 @@ export async function updateSession(request: NextRequest) {
     }
 
     // If verified and trying to access auth pages, redirect to dashboard
-    if (email_confirmed && (isLoginPath || isRegisterPath || isVerifyPath)) {
+    // But don't redirect if we're processing a verification
+    if (
+      email_confirmed &&
+      (isLoginPath || isRegisterPath || (isVerifyPath && !isVerificationFlow))
+    ) {
       const url = request.nextUrl.clone();
       url.pathname = "/dashboard";
       return NextResponse.redirect(url);
     }
   }
 
-  return supabaseResponse;
+  return response;
 }

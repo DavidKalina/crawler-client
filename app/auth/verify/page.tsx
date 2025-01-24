@@ -6,53 +6,77 @@ import { createClient } from "@/utils/supabase/client";
 import { Card, CardHeader, CardContent, CardTitle, CardDescription } from "@/components/ui/card";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
-import { Loader2, Mail } from "lucide-react";
+import { Loader2, Mail, AlertTriangle } from "lucide-react";
 
 export default function VerifyPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
+
+  // Get all URL parameters that Supabase might send
   const email = searchParams.get("email");
+  const errorCode = searchParams.get("error_code");
+  const errorDescription = searchParams.get("error_description");
+  const type = searchParams.get("type");
   const token = searchParams.get("token");
 
   const [verificationStatus, setVerificationStatus] = useState<
     "loading" | "success" | "error" | null
-  >(token ? "loading" : null);
+  >(null);
   const [error, setError] = useState<string | null>(null);
   const [resending, setResending] = useState(false);
   const [resendSuccess, setResendSuccess] = useState(false);
+  const [resendCount, setResendCount] = useState(0);
 
   const supabase = createClient();
 
-  // Handle token verification
+  // Handle verification
   useEffect(() => {
-    if (!token) return;
+    // Check for error parameters first
+    if (searchParams.get("error") || searchParams.get("error_code")) {
+      setVerificationStatus("error");
+      const errorDesc = searchParams.get("error_description");
+      setError(
+        errorDesc ? decodeURIComponent(errorDesc).replace(/\+/g, " ") : "Verification failed"
+      );
+      return;
+    }
 
-    const verifyToken = async () => {
-      try {
-        const { error } = await supabase.auth.verifyOtp({
-          token_hash: token,
-          type: "signup",
-        });
+    // If there's a token in the URL, attempt verification
+    if (token) {
+      setVerificationStatus("loading");
 
-        if (error) throw error;
+      const verifyEmailWithSupabase = async () => {
+        try {
+          const { error } = await supabase.auth.verifyOtp({
+            token_hash: token,
+            type: "signup",
+          });
 
-        setVerificationStatus("success");
-        setTimeout(() => {
-          router.push("/dashboard");
-        }, 2000);
-      } catch (error) {
-        console.error("Verification error:", error);
-        setVerificationStatus("error");
-        setError(error instanceof Error ? error.message : "Failed to verify email");
-      }
-    };
+          if (error) throw error;
 
-    verifyToken();
-  }, [token, router, supabase.auth]);
+          setVerificationStatus("success");
 
-  // Handle resend verification email
+          // Redirect to dashboard after successful verification
+          setTimeout(() => {
+            router.push("/dashboard");
+          }, 2000);
+        } catch (error) {
+          console.error("Verification error:", error);
+          setVerificationStatus("error");
+          setError(
+            error instanceof Error
+              ? error.message
+              : "Failed to verify email. Please try again or contact support."
+          );
+        }
+      };
+
+      verifyEmailWithSupabase();
+    }
+  }, [type, token, email, errorCode, errorDescription, router, supabase.auth]);
+
   const handleResendEmail = async () => {
-    if (!email) return;
+    if (!email || resendCount >= 3) return;
 
     setResending(true);
     setError(null);
@@ -68,16 +92,67 @@ export default function VerifyPage() {
       });
 
       if (error) throw error;
+
+      setResendCount((prev) => prev + 1);
       setResendSuccess(true);
     } catch (error) {
-      setError(error instanceof Error ? error.message : "Failed to resend verification email");
+      setError(
+        error instanceof Error
+          ? error.message
+          : "Failed to resend verification email. Please try again later."
+      );
     } finally {
       setResending(false);
     }
   };
 
-  // Show verification process if token is present
-  if (token) {
+  // Error state view
+  if (verificationStatus === "error") {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50 p-4">
+        <Card className="w-full max-w-md">
+          <CardHeader>
+            <div className="flex justify-center mb-4">
+              <AlertTriangle className="h-12 w-12 text-destructive" />
+            </div>
+            <CardTitle className="text-2xl font-bold text-center">Verification Failed</CardTitle>
+            <CardDescription className="text-center text-destructive">{error}</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            {email && (
+              <div className="text-center space-y-4">
+                <p className="text-sm text-gray-600">
+                  Would you like us to send another verification email to <strong>{email}</strong>?
+                </p>
+                <Button
+                  variant="outline"
+                  onClick={handleResendEmail}
+                  disabled={resending || resendCount >= 3}
+                >
+                  {resending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                  {resendCount >= 3
+                    ? "Maximum resend attempts reached"
+                    : "Send new verification email"}
+                </Button>
+              </div>
+            )}
+            <div className="text-center mt-4">
+              <Button
+                variant="link"
+                onClick={() => router.push("/login")}
+                className="text-sm text-gray-500"
+              >
+                Return to login
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
+  // Verification in progress
+  if (verificationStatus === "loading") {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50 p-4">
         <Card className="w-full max-w-md">
@@ -85,35 +160,37 @@ export default function VerifyPage() {
             <CardTitle className="text-2xl font-bold text-center">Email Verification</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
-            {verificationStatus === "loading" && (
-              <div className="flex flex-col items-center space-y-4">
-                <Loader2 className="h-8 w-8 animate-spin text-primary" />
-                <p className="text-center text-sm text-gray-600">Verifying your email...</p>
-              </div>
-            )}
-
-            {verificationStatus === "success" && (
-              <Alert>
-                <AlertDescription>
-                  Email verified successfully! Redirecting to dashboard...
-                </AlertDescription>
-              </Alert>
-            )}
-
-            {verificationStatus === "error" && (
-              <Alert variant="destructive">
-                <AlertDescription>
-                  {error || "Failed to verify email. Please try again."}
-                </AlertDescription>
-              </Alert>
-            )}
+            <div className="flex flex-col items-center space-y-4">
+              <Loader2 className="h-8 w-8 animate-spin text-primary" />
+              <p className="text-center text-sm text-gray-600">Verifying your email...</p>
+            </div>
           </CardContent>
         </Card>
       </div>
     );
   }
 
-  // Show "Check your email" page if email is present
+  // Success state
+  if (verificationStatus === "success") {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50 p-4">
+        <Card className="w-full max-w-md">
+          <CardHeader>
+            <CardTitle className="text-2xl font-bold text-center">Email Verified</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <Alert>
+              <AlertDescription>
+                Email verified successfully! Redirecting to dashboard...
+              </AlertDescription>
+            </Alert>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
+  // Default "Check your email" view
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50 p-4">
       <Card className="w-full max-w-md">
@@ -147,7 +224,9 @@ export default function VerifyPage() {
 
           {resendSuccess && (
             <Alert>
-              <AlertDescription>Verification email has been resent!</AlertDescription>
+              <AlertDescription>
+                Verification email has been resent! Please check your inbox.
+              </AlertDescription>
             </Alert>
           )}
 
@@ -155,12 +234,17 @@ export default function VerifyPage() {
             <Button
               variant="outline"
               onClick={handleResendEmail}
-              disabled={resending || !email}
+              disabled={resending || !email || resendCount >= 3}
               className="mt-4"
             >
               {resending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-              Resend verification email
+              {resendCount >= 3 ? "Maximum resend attempts reached" : "Resend verification email"}
             </Button>
+            {resendCount > 0 && resendCount < 3 && (
+              <p className="text-sm text-gray-500 mt-2">
+                Resend attempts remaining: {3 - resendCount}
+              </p>
+            )}
           </div>
         </CardContent>
       </Card>

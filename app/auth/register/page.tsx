@@ -1,6 +1,8 @@
 "use client";
 
-import React, { useState } from "react";
+import { createProfile } from "@/app/actions/register";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
@@ -9,15 +11,13 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { useRouter } from "next/navigation";
-import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Loader2 } from "lucide-react";
-import { Checkbox } from "@/components/ui/checkbox";
 import { createClient } from "@/utils/supabase/client";
-import { createProfile } from "@/app/actions/register";
+import { Loader2 } from "lucide-react";
+import { useRouter } from "next/navigation";
+import React, { useState } from "react";
 
 interface RegistrationFormData {
   email: string;
@@ -25,6 +25,12 @@ interface RegistrationFormData {
   confirmPassword: string;
   fullName: string;
   companyName?: string;
+}
+
+interface ValidationErrors {
+  password?: string;
+  confirmPassword?: string;
+  email?: string;
 }
 
 const RegistrationPage = () => {
@@ -38,9 +44,41 @@ const RegistrationPage = () => {
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [validationErrors, setValidationErrors] = useState<ValidationErrors>({});
   const [agreedToTerms, setAgreedToTerms] = useState(false);
 
   const supabase = createClient();
+
+  const validateForm = (): boolean => {
+    const errors: ValidationErrors = {};
+
+    // Password validation
+    if (formData.password.length < 8) {
+      errors.password = "Password must be at least 8 characters long";
+    }
+
+    if (!/[A-Z]/.test(formData.password)) {
+      errors.password = "Password must contain at least one uppercase letter";
+    }
+
+    if (!/[0-9]/.test(formData.password)) {
+      errors.password = "Password must contain at least one number";
+    }
+
+    // Confirm password validation
+    if (formData.password !== formData.confirmPassword) {
+      errors.confirmPassword = "Passwords do not match";
+    }
+
+    // Email validation
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(formData.email)) {
+      errors.email = "Please enter a valid email address";
+    }
+
+    setValidationErrors(errors);
+    return Object.keys(errors).length === 0;
+  };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -48,22 +86,47 @@ const RegistrationPage = () => {
       ...prev,
       [name]: value,
     }));
+    // Clear validation error when user starts typing
+    if (validationErrors[name as keyof ValidationErrors]) {
+      setValidationErrors((prev) => ({
+        ...prev,
+        [name]: undefined,
+      }));
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setError(null);
+
+    if (!agreedToTerms) {
+      setError("Please agree to the terms and conditions");
+      return;
+    }
+
+    if (!validateForm()) {
+      return;
+    }
+
+    setLoading(true);
 
     try {
-      // First, create the auth user
+      // Sign up with Supabase auth
       const { data: authData, error: authError } = await supabase.auth.signUp({
         email: formData.email,
         password: formData.password,
+        options: {
+          emailRedirectTo: `${window.location.origin}/auth/callback`,
+          data: {
+            full_name: formData.fullName,
+          },
+        },
       });
 
       if (authError) throw authError;
 
       if (authData.user) {
-        // Then use the server action to create the profile
+        // Create profile using server action
         const result = await createProfile({
           userId: authData.user.id,
           fullName: formData.fullName,
@@ -75,11 +138,12 @@ const RegistrationPage = () => {
           throw new Error(result.error);
         }
 
-        // Redirect to verification page
-        router.push("/");
+        // Redirect to verification page with email parameter
+        router.push(`/auth/verify?email=${encodeURIComponent(formData.email)}`);
       }
     } catch (error) {
       setError(error instanceof Error ? error.message : "Registration failed");
+      setLoading(false);
     }
   };
 
@@ -123,6 +187,9 @@ const RegistrationPage = () => {
                 onChange={handleInputChange}
                 required
               />
+              {validationErrors.email && (
+                <p className="text-sm text-red-500">{validationErrors.email}</p>
+              )}
             </div>
 
             <div className="space-y-2">
@@ -146,7 +213,13 @@ const RegistrationPage = () => {
                 onChange={handleInputChange}
                 required
               />
-              <p className="text-sm text-gray-500">Must be at least 8 characters long</p>
+              {validationErrors.password ? (
+                <p className="text-sm text-red-500">{validationErrors.password}</p>
+              ) : (
+                <p className="text-sm text-gray-500">
+                  Must be at least 8 characters with one uppercase letter and one number
+                </p>
+              )}
             </div>
 
             <div className="space-y-2">
@@ -159,6 +232,9 @@ const RegistrationPage = () => {
                 onChange={handleInputChange}
                 required
               />
+              {validationErrors.confirmPassword && (
+                <p className="text-sm text-red-500">{validationErrors.confirmPassword}</p>
+              )}
             </div>
 
             <div className="flex items-center space-x-2">
@@ -177,7 +253,7 @@ const RegistrationPage = () => {
           </CardContent>
 
           <CardFooter className="flex flex-col space-y-4">
-            <Button type="submit" className="w-full" disabled={loading}>
+            <Button type="submit" className="w-full" disabled={loading || !agreedToTerms}>
               {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
               Create Account
             </Button>
