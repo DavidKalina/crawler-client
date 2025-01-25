@@ -4,11 +4,13 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useToast } from "@/hooks/use-toast";
 import { createClient } from "@/utils/supabase/client";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { AccountInfo } from "@/components/AccountInfo";
 import { DangerZone } from "@/components/DangerZone";
 import { UsageOverview } from "@/components/UsageOverView";
 import { PasswordReset } from "@/components/PasswordReset";
 import { EmailChange } from "@/components/ChangeEmail";
+import { LayoutDashboard, User, Mail, Lock, AlertTriangle } from "lucide-react";
 
 interface UserProfile {
   full_name: string;
@@ -100,40 +102,80 @@ export default function SettingsPage() {
   }
 
   return (
-    <div className="container mx-auto p-6">
-      <div className="max-w-7xl mx-auto">
-        <h1 className="text-3xl font-bold mb-6">Account Settings</h1>
+    <div className="container mx-auto">
+      <div className="max-w-7xl mx-auto h-full">
+        <h1 className="text-2xl font-semibold p-6">Account Settings</h1>
 
-        {/* Grid layout with responsive columns */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {/* Column 1: Account Overview */}
-          <div className="lg:col-span-3">
-            <UsageOverview
-              pagesUsed={profile.pages_used}
-              monthlyQuota={profile.monthly_quota}
-              lastQuotaReset={profile.last_quota_reset}
-            />
-          </div>
+        <div className="flex h-full">
+          <Tabs defaultValue="overview" orientation="vertical" className="flex-1 flex h-full">
+            <TabsList className="h-full w-64 flex-col items-start space-y-1 rounded-none bg-background pt-4">
+              <TabsTrigger
+                value="overview"
+                className="w-full justify-start gap-2 px-4 py-2 text-sm font-medium"
+              >
+                <LayoutDashboard className="h-4 w-4" />
+                Overview
+              </TabsTrigger>
+              <TabsTrigger
+                value="account"
+                className="w-full justify-start gap-2 px-4 py-2 text-sm font-medium"
+              >
+                <User className="h-4 w-4" />
+                Account Info
+              </TabsTrigger>
+              <TabsTrigger
+                value="email"
+                className="w-full justify-start gap-2 px-4 py-2 text-sm font-medium"
+              >
+                <Mail className="h-4 w-4" />
+                Email Settings
+              </TabsTrigger>
+              <TabsTrigger
+                value="password"
+                className="w-full justify-start gap-2 px-4 py-2 text-sm font-medium"
+              >
+                <Lock className="h-4 w-4" />
+                Password
+              </TabsTrigger>
+              <TabsTrigger
+                value="danger"
+                className="w-full justify-start gap-2 px-4 py-2 text-sm font-medium text-red-500 hover:text-red-500"
+              >
+                <AlertTriangle className="h-4 w-4" />
+                Danger Zone
+              </TabsTrigger>
+            </TabsList>
 
-          {/* Column 2: Account Information */}
-          <div className="space-y-6">
-            <AccountInfo
-              fullName={profile.full_name}
-              companyName={profile.company_name}
-              email={profile.email}
-            />
-            <DangerZone isLoading={isLoading} onDeleteAccount={handleDeleteAccount} />
-          </div>
+            <div className="flex-1 p-6">
+              <TabsContent value="overview" className="mt-0">
+                <UsageOverview
+                  pagesUsed={profile.pages_used}
+                  monthlyQuota={profile.monthly_quota}
+                  lastQuotaReset={profile.last_quota_reset}
+                />
+              </TabsContent>
 
-          {/* Column 3: Email Management */}
-          <div>
-            <EmailChange />
-          </div>
+              <TabsContent value="account" className="mt-0">
+                <AccountInfo
+                  fullName={profile.full_name}
+                  companyName={profile.company_name}
+                  email={profile.email}
+                />
+              </TabsContent>
 
-          {/* Column 4: Password Management */}
-          <div>
-            <PasswordReset />
-          </div>
+              <TabsContent value="email" className="mt-0">
+                <EmailChange />
+              </TabsContent>
+
+              <TabsContent value="password" className="mt-0">
+                <PasswordReset />
+              </TabsContent>
+
+              <TabsContent value="danger" className="mt-0">
+                <DangerZone isLoading={isLoading} onDeleteAccount={handleDeleteAccount} />
+              </TabsContent>
+            </div>
+          </Tabs>
         </div>
       </div>
     </div>
