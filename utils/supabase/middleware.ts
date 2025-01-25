@@ -37,14 +37,16 @@ export async function updateSession(request: NextRequest) {
     path === "/auth/verify" &&
     (searchParams.has("token") ||
       searchParams.has("error") ||
+      searchParams.has("type") ||
       searchParams.has("error_code") ||
       searchParams.has("handled"));
 
+  const isResetPasswordPath = path.includes("/auth/reset-password");
+
   // Special handling for auth callback and verification flow
-  if (path === "/auth/callback" || isVerificationFlow) {
+  if (path === "/auth/callback" || isVerificationFlow || searchParams.get("type") === "recovery") {
     return response;
   }
-
   // IMPORTANT: DO NOT REMOVE auth.getUser()
   const {
     data: { user },
@@ -56,7 +58,8 @@ export async function updateSession(request: NextRequest) {
     path === "/" ||
     path.includes("/api/") ||
     path.includes("/_next/") ||
-    path.includes("/static/");
+    path.includes("/static/") ||
+    isResetPasswordPath; // Add this
 
   // Specific auth-related paths
   const isVerifyPath = path.includes("/auth/verify");
@@ -74,7 +77,8 @@ export async function updateSession(request: NextRequest) {
     const email_confirmed = user.email_confirmed_at;
 
     // If email not confirmed and not on verification page, redirect to verify
-    if (!email_confirmed && !isVerifyPath && !isPublicPath) {
+    if (!email_confirmed && !isVerifyPath && !isPublicPath && !isResetPasswordPath) {
+      // Add reset password check
       const url = request.nextUrl.clone();
       url.pathname = "/auth/verify";
       url.searchParams.set("email", user.email || "");
@@ -82,10 +86,11 @@ export async function updateSession(request: NextRequest) {
     }
 
     // If verified and trying to access auth pages, redirect to dashboard
-    // But don't redirect if we're processing a verification
+    // But don't redirect if we're processing a verification or reset password
     if (
       email_confirmed &&
-      (isLoginPath || isRegisterPath || (isVerifyPath && !isVerificationFlow))
+      (isLoginPath || isRegisterPath || (isVerifyPath && !isVerificationFlow)) &&
+      !isResetPasswordPath // Add this condition
     ) {
       const url = request.nextUrl.clone();
       url.pathname = "/dashboard";

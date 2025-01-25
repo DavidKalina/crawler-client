@@ -25,6 +25,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import DownloadCrawledPages from "./DownloadCrawledPages";
+import StopCrawlButton from "./StopCrawlButton";
 
 type CrawlJob = {
   id: string;
@@ -218,7 +220,6 @@ const CrawlJobsTable = ({
       )}
 
       <div className="flex justify-between items-center mb-4">
-        <h2 className="text-lg font-semibold">Crawl Jobs</h2>
         <div className="w-[200px]">
           <Select value={selectedStatus} onValueChange={handleStatusChange}>
             <SelectTrigger>
@@ -272,18 +273,17 @@ const CrawlJobsTable = ({
                   {job.completed_at ? format(new Date(job.completed_at), "MMM d, yyyy HH:mm") : "-"}
                 </TableCell>
                 <TableCell className="p-4">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    className="flex items-center gap-2"
-                    onClick={(e) => {
-                      e.stopPropagation(); // Prevent row click when clicking download
-                      downloadPages(job.id);
-                    }}
-                  >
-                    <Download className="h-4 w-4" />
-                    Download
-                  </Button>
+                  <div className="flex items-center gap-2">
+                    <DownloadCrawledPages crawlJobId={job.id} />
+                    <StopCrawlButton
+                      crawlJobId={job.id}
+                      status={job.status}
+                      onStop={() => {
+                        // Optionally handle any local state updates
+                        fetchJobs(pagination.page, selectedStatus);
+                      }}
+                    />
+                  </div>
                 </TableCell>
               </TableRow>
             ))}

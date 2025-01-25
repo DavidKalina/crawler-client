@@ -4,11 +4,34 @@ import { NextRequest, NextResponse } from "next/server";
 export async function GET(request: NextRequest) {
   const requestUrl = new URL(request.url);
   const code = requestUrl.searchParams.get("code");
-  const next = requestUrl.searchParams.get("next") || "/dashboard";
+  const next = requestUrl.searchParams.get("next") || "/";
+  const type = requestUrl.searchParams.get("type");
+  const token = requestUrl.searchParams.get("token");
 
   // Create server-side Supabase client
   const supabase = createClient();
 
+  // Handle recovery flow with token
+  if (type === "recovery" && token) {
+    try {
+      // Exchange the token for a session
+      const { error } = await supabase.auth.verifyOtp({
+        token_hash: token,
+        type: "recovery",
+      });
+
+      if (error) {
+        return NextResponse.redirect(
+          new URL(`/auth/login?error=${encodeURIComponent(error.message)}`, requestUrl)
+        );
+      }
+
+      return NextResponse.redirect(new URL("/auth/reset-password", requestUrl));
+    } catch (error) {
+      console.error("Recovery flow error:", error);
+      return NextResponse.redirect(new URL("/auth/login?error=Recovery failed", requestUrl));
+    }
+  }
   // Handle auth code exchange
   if (code) {
     try {
