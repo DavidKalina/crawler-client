@@ -33,7 +33,7 @@ const CrawlInitiator = () => {
         throw new Error(result.error);
       }
 
-      setSuccess(`Crawl started successfully! Job ID: ${result.jobId}`);
+      setSuccess(`Crawl started successfully!`);
       setUrl((prev) => prev);
       setAllowedDomains("");
     } catch (err) {

@@ -67,7 +67,14 @@ const DownloadCrawledPages = ({ crawlJobId = null }: { crawlJobId: string | null
   };
 
   return (
-    <Button onClick={downloadPages} className="flex items-center gap-2 bg-blue-500">
+    <Button
+      onClick={(e) => {
+        e.stopPropagation();
+
+        downloadPages();
+      }}
+      className="flex items-center gap-2 bg-blue-500"
+    >
       <Download className="h-4 w-4" />
     </Button>
   );
