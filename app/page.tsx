@@ -77,14 +77,7 @@ const CrawlJobsPage = () => {
       <div className="lg:col-span-1 space-y-6">
         <CrawlInitiator />
 
-        <Card>
-          <CardHeader>
-            <CardTitle>Quota Status</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <QuotaDisplayWrapper />
-          </CardContent>
-        </Card>
+        <QuotaDisplayWrapper />
       </div>
       <div className="lg:col-span-3">
         <CrawlJobsTable initialJobs={data.jobs} initialTotal={data.total} />

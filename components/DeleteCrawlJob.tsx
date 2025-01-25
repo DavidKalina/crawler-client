@@ -27,7 +27,10 @@ const DeleteCrawlJobButton = ({
   const router = useRouter();
   const supabase = createClient();
 
-  const deleteCrawl = async () => {
+  const deleteCrawl = async (e: React.MouseEvent) => {
+    // Prevent event from bubbling up to the row
+    e.stopPropagation();
+
     try {
       const { error } = await supabase.from("web_crawl_jobs").delete().eq("id", crawlJobId);
 
@@ -35,12 +38,10 @@ const DeleteCrawlJobButton = ({
         throw error;
       }
 
-      // Call the optional onDelete callback
       if (onDelete) {
         onDelete();
       }
 
-      // Refresh the page data
       router.refresh();
     } catch (error) {
       console.error("Error deleting crawl job:", error);
@@ -63,7 +64,7 @@ const DeleteCrawlJobButton = ({
           <Trash2 className="h-4 w-4" />
         </Button>
       </AlertDialogTrigger>
-      <AlertDialogContent>
+      <AlertDialogContent onClick={(e) => e.stopPropagation()}>
         <AlertDialogHeader>
           <AlertDialogTitle>Delete Crawl Job</AlertDialogTitle>
           <AlertDialogDescription>
@@ -71,7 +72,7 @@ const DeleteCrawlJobButton = ({
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <AlertDialogCancel>Cancel</AlertDialogCancel>
+          <AlertDialogCancel onClick={(e) => e.stopPropagation()}>Cancel</AlertDialogCancel>
           <AlertDialogAction onClick={deleteCrawl}>Delete</AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>
