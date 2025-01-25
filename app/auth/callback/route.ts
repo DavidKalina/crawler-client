@@ -1,30 +1,47 @@
+import { createClient } from "@/utils/supabase/client";
 import { NextRequest, NextResponse } from "next/server";
 
-// app/auth/callback/route.ts
 export async function GET(request: NextRequest) {
-  // Log the raw request URL and hash
-  console.log("Raw URL:", request.url);
-  console.log("Raw Headers:", Object.fromEntries(request.headers.entries()));
+  const requestUrl = new URL(request.url);
+  const code = requestUrl.searchParams.get("code");
+  const next = requestUrl.searchParams.get("next") || "/dashboard";
 
-  const searchParams = request.nextUrl.searchParams;
-  const token = searchParams.get("token");
+  // Create server-side Supabase client
+  const supabase = createClient();
 
-  // If there's a hash in the URL, it might contain the token
-  const urlHash = request.url.split("#")[1];
-  console.log("URL Hash:", urlHash);
+  // Handle auth code exchange
+  if (code) {
+    try {
+      const { error } = await supabase.auth.exchangeCodeForSession(code);
+      if (error) {
+        return NextResponse.redirect(
+          new URL(`/auth/verify?error=${encodeURIComponent(error.message)}`, requestUrl)
+        );
+      }
 
-  if (token) {
-    const verifyUrl = new URL("/auth/verify", request.url);
-    verifyUrl.searchParams.set("token", token);
+      // Successful auth, redirect to the intended destination
+      return NextResponse.redirect(new URL(next, requestUrl));
+    } catch (error) {
+      console.error("Auth callback error:", error);
+      return NextResponse.redirect(
+        new URL("/auth/login?error=Session exchange failed", requestUrl)
+      );
+    }
+  }
+
+  // Handle OAuth and email verification errors
+  const errorDescription = requestUrl.searchParams.get("error_description");
+  const error = requestUrl.searchParams.get("error");
+
+  if (error || errorDescription) {
+    const verifyUrl = new URL("/auth/verify", requestUrl);
+    ["error", "error_description", "error_code"].forEach((param) => {
+      const value = requestUrl.searchParams.get(param);
+      if (value) verifyUrl.searchParams.set(param, value);
+    });
     return NextResponse.redirect(verifyUrl);
   }
 
-  // Handle error cases
-  const verifyUrl = new URL("/auth/verify", request.url);
-  ["error", "error_description", "error_code"].forEach((param) => {
-    const value = searchParams.get(param);
-    if (value) verifyUrl.searchParams.set(param, value);
-  });
-
-  return NextResponse.redirect(verifyUrl);
+  // If no code or error, redirect to login
+  return NextResponse.redirect(new URL("/auth/login?error=Invalid callback", requestUrl));
 }

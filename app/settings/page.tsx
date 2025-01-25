@@ -2,22 +2,13 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from "@/components/ui/alert-dialog";
-import { Button } from "@/components/ui/button";
-import { Progress } from "@/components/ui/progress";
 import { useToast } from "@/hooks/use-toast";
 import { createClient } from "@/utils/supabase/client";
+import { AccountInfo } from "@/components/AccountInfo";
+import { DangerZone } from "@/components/DangerZone";
+import { UsageOverview } from "@/components/UsageOverView";
+import { PasswordReset } from "@/components/PasswordReset";
+import { EmailChange } from "@/components/ChangeEmail";
 
 interface UserProfile {
   full_name: string;
@@ -72,19 +63,6 @@ export default function SettingsPage() {
     fetchProfile();
   }, [supabase, toast]);
 
-  // Function to format the date
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString("en-US", {
-      year: "numeric",
-      month: "long",
-      day: "numeric",
-    });
-  };
-
-  // Calculate quota usage percentage
-  const quotaPercentage = profile ? (profile.pages_used / profile.monthly_quota) * 100 : 0;
-
-  // Function to handle account deletion
   const handleDeleteAccount = async () => {
     setIsLoading(true);
     try {
@@ -104,12 +82,9 @@ export default function SettingsPage() {
         description: "Your account has been successfully deleted.",
       });
 
-      // Sign out the user after successful deletion
       await supabase.auth.signOut();
-
-      // Redirect to login page
       router.push("/auth/login");
-    } catch (error) {
+    } catch {
       toast({
         title: "Error",
         description: "Failed to delete account. Please try again later.",
@@ -120,92 +95,47 @@ export default function SettingsPage() {
     }
   };
 
+  if (!profile) {
+    return null; // Or a loading state
+  }
+
   return (
-    <div className="container mx-auto p-6 max-w-2xl">
-      <h1 className="text-3xl font-bold mb-6">Account Settings</h1>
+    <div className="container mx-auto p-6">
+      <div className="max-w-7xl mx-auto">
+        <h1 className="text-3xl font-bold mb-6">Account Settings</h1>
 
-      <Card className="mb-6">
-        <CardHeader>
-          <CardTitle>Usage Overview</CardTitle>
-          <CardDescription>Monitor your monthly web scraping quota</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-4">
-            <div>
-              <div className="flex justify-between mb-2">
-                <span className="text-sm font-medium">
-                  {profile?.pages_used} / {profile?.monthly_quota} pages used
-                </span>
-                <span className="text-sm text-muted-foreground">{quotaPercentage.toFixed(1)}%</span>
-              </div>
-              <Progress value={quotaPercentage} className="h-2" />
-            </div>
-            {profile?.last_quota_reset && (
-              <p className="text-sm text-muted-foreground">
-                Quota resets on {formatDate(profile.last_quota_reset)}
-              </p>
-            )}
+        {/* Grid layout with responsive columns */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {/* Column 1: Account Overview */}
+          <div className="lg:col-span-3">
+            <UsageOverview
+              pagesUsed={profile.pages_used}
+              monthlyQuota={profile.monthly_quota}
+              lastQuotaReset={profile.last_quota_reset}
+            />
           </div>
-        </CardContent>
-      </Card>
 
-      <Card className="mb-6">
-        <CardHeader>
-          <CardTitle>Account Information</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-4">
-            <div>
-              <label className="text-sm font-medium">Full Name</label>
-              <p className="text-sm text-muted-foreground">{profile?.full_name}</p>
-            </div>
-            {profile?.company_name && (
-              <div>
-                <label className="text-sm font-medium">Company</label>
-                <p className="text-sm text-muted-foreground">{profile.company_name}</p>
-              </div>
-            )}
-            <div>
-              <label className="text-sm font-medium">Email</label>
-              <p className="text-sm text-muted-foreground">{profile?.email}</p>
-            </div>
+          {/* Column 2: Account Information */}
+          <div className="space-y-6">
+            <AccountInfo
+              fullName={profile.full_name}
+              companyName={profile.company_name}
+              email={profile.email}
+            />
+            <DangerZone isLoading={isLoading} onDeleteAccount={handleDeleteAccount} />
           </div>
-        </CardContent>
-      </Card>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Danger Zone</CardTitle>
-          <CardDescription>Permanently delete your account and all associated data</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <AlertDialog>
-            <AlertDialogTrigger asChild>
-              <Button variant="destructive" disabled={isLoading}>
-                {isLoading ? "Deleting..." : "Delete Account"}
-              </Button>
-            </AlertDialogTrigger>
-            <AlertDialogContent>
-              <AlertDialogHeader>
-                <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
-                <AlertDialogDescription>
-                  This action cannot be undone. This will permanently delete your account and remove
-                  all associated data from our servers.
-                </AlertDialogDescription>
-              </AlertDialogHeader>
-              <AlertDialogFooter>
-                <AlertDialogCancel>Cancel</AlertDialogCancel>
-                <AlertDialogAction
-                  onClick={handleDeleteAccount}
-                  className="bg-destructive hover:bg-destructive/90"
-                >
-                  Delete Account
-                </AlertDialogAction>
-              </AlertDialogFooter>
-            </AlertDialogContent>
-          </AlertDialog>
-        </CardContent>
-      </Card>
+          {/* Column 3: Email Management */}
+          <div>
+            <EmailChange />
+          </div>
+
+          {/* Column 4: Password Management */}
+          <div>
+            <PasswordReset />
+          </div>
+        </div>
+      </div>
     </div>
   );
 }
