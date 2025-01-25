@@ -1,66 +1,93 @@
+"use client";
+
+import { useState, useEffect } from "react";
+import { createClient } from "@/utils/supabase/client";
 import CrawlInitiator from "@/components/CrawlInitiator";
 import CrawlJobsTable from "@/components/CrawlJobTable";
 import QuotaDisplayWrapper from "@/components/QuotaDisplayWrapper";
-import { Alert, AlertDescription } from "@/components/ui/alert";
-import { createClient } from "@/utils/supabase/server";
-import { Loader2 } from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { CrawlJobsData } from "@/types/jobTypes";
+import DashboardLayout from "@/components/DashboardLayout";
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-const DashboardLayout = ({ children, isLoading, error }: any) => {
-  if (isLoading) {
-    return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="flex items-center space-x-2">
-          <Loader2 className="h-6 w-6 animate-spin" />
-          <p className="text-gray-600">Loading dashboard...</p>
-        </div>
-      </div>
-    );
-  }
+const CrawlJobsPage = () => {
+  const [isLoading, setIsLoading] = useState(true);
+  const [data, setData] = useState<CrawlJobsData>({ jobs: [], total: 0 });
+  const [quotaUsage, setQuotaUsage] = useState(0);
+  const supabase = createClient();
 
-  if (error) {
-    return (
-      <div className="min-h-screen bg-gray-50 p-8">
-        <div className="max-w-8xl mx-auto">
-          <Alert variant="destructive">
-            <AlertDescription>{error.message || "Error loading dashboard"}</AlertDescription>
-          </Alert>
-        </div>
-      </div>
-    );
-  }
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        // Fetch total count
+        const { count, error: countError } = await supabase
+          .from("web_crawl_jobs")
+          .select("*", { count: "exact", head: true });
+
+        if (countError) throw countError;
+
+        // Fetch initial jobs
+        const { data: jobs, error: jobsError } = await supabase
+          .from("web_crawl_jobs")
+          .select("*")
+          .order("created_at", { ascending: false })
+          .range(0, 9);
+
+        if (jobsError) throw jobsError;
+
+        console.log(jobs[0]);
+        setData({
+          jobs: jobs || [],
+          total: count || 0,
+        });
+
+        // TODO: Implement actual quota calculation
+        setQuotaUsage(45);
+      } catch (error) {
+        setData((prev) => ({ ...prev, error: error as Error }));
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchData();
+
+    // Set up real-time subscription for job updates
+    const channel = supabase
+      .channel("dashboard-jobs")
+      .on(
+        "postgres_changes",
+        {
+          event: "*",
+          schema: "public",
+          table: "web_crawl_jobs",
+        },
+        () => {
+          fetchData(); // Refresh data when changes occur
+        }
+      )
+      .subscribe();
+
+    return () => {
+      channel.unsubscribe();
+    };
+  }, []);
+
   return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="py-12 px-8">
-        <div className="max-w-8xl mx-auto">
-          <div className="grid grid-cols-4 gap-6">{children}</div>
-        </div>
-      </div>
-    </div>
-  );
-};
-
-const CrawlJobsPage = async () => {
-  const supabase = await createClient();
-
-  const { count } = await supabase
-    .from("web_crawl_jobs")
-    .select("*", { count: "exact", head: true });
-
-  const { data: initialJobs } = await supabase
-    .from("web_crawl_jobs")
-    .select("*")
-    .order("created_at", { ascending: false })
-    .range(0, 9);
-
-  return (
-    <DashboardLayout>
-      <div className="col-span-1 space-y-6">
+    <DashboardLayout isLoading={isLoading} error={data.error} quotaUsage={quotaUsage}>
+      <div className="lg:col-span-1 space-y-6">
         <CrawlInitiator />
-        <QuotaDisplayWrapper />
+
+        <Card>
+          <CardHeader>
+            <CardTitle>Quota Status</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <QuotaDisplayWrapper />
+          </CardContent>
+        </Card>
       </div>
-      <div className="col-span-3">
-        <CrawlJobsTable initialJobs={initialJobs || []} initialTotal={count || 0} />
+      <div className="lg:col-span-3">
+        <CrawlJobsTable initialJobs={data.jobs} initialTotal={data.total} />
       </div>
     </DashboardLayout>
   );

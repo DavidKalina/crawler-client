@@ -47,7 +47,7 @@ const StopCrawlButton = ({
   }
 
   return (
-    <Button onClick={stopCrawl} className="flex items-center gap-2">
+    <Button onClick={stopCrawl} className="flex items-center gap-2 bg-red-500">
       <Square className="h-4 w-4" />
     </Button>
   );

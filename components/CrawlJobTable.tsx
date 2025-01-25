@@ -2,8 +2,16 @@
 // components/CrawlJobsTable.tsx
 "use client";
 
-import React, { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import {
   Table,
   TableBody,
@@ -12,32 +20,14 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Badge } from "@/components/ui/badge";
-import { format } from "date-fns";
-import { Alert, AlertDescription } from "@/components/ui/alert";
 import { createClient } from "@/utils/supabase/client";
-import { Button } from "@/components/ui/button";
-import { Download } from "lucide-react";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import { format } from "date-fns";
+import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
 import DownloadCrawledPages from "./DownloadCrawledPages";
 import StopCrawlButton from "./StopCrawlButton";
-
-type CrawlJob = {
-  id: string;
-  start_url: string;
-  max_depth: number;
-  status: "pending" | "running" | "paused" | "stopping" | "completed" | "failed" | "crawled";
-  created_at: string;
-  completed_at: string | null;
-  updated_at: string;
-  metadata: Record<string, any>;
-};
+import { WebCrawlJob } from "@/types/jobTypes";
+import DeleteCrawlJobButton from "./DeleteCrawlJob";
 
 interface PaginationState {
   page: number;
@@ -57,7 +47,7 @@ const statusOptions = [
   { value: "crawled", label: "Crawled" },
 ];
 
-const getStatusColor = (status: CrawlJob["status"]) => {
+const getStatusColor = (status: WebCrawlJob["status"]) => {
   switch (status) {
     case "running":
       return "bg-blue-500";
@@ -70,63 +60,9 @@ const getStatusColor = (status: CrawlJob["status"]) => {
     case "stopping":
       return "bg-orange-500";
     case "crawled":
-      return "bg-purple-500";
+      return "bg-green-500";
     default:
       return "bg-gray-500";
-  }
-};
-
-const downloadPages = async (jobId: string) => {
-  try {
-    const supabase = createClient();
-    const { data, error } = await supabase
-      .from("crawled_pages")
-      .select("*")
-      .eq("crawl_job_id", jobId)
-      .order("created_at", { ascending: true });
-
-    if (error) {
-      console.error("Error fetching data:", error);
-      return;
-    }
-
-    // Convert data to CSV
-    const headers = [
-      "id",
-      "url",
-      "title",
-      "content_text",
-      "depth",
-      "created_at",
-      "processing_status",
-    ];
-    const csvContent = [
-      headers.join(","),
-      ...data.map((row) =>
-        headers
-          .map((header) => {
-            const value = row[header]?.toString() || "";
-            // Escape quotes and wrap in quotes if contains comma or newline
-            return value.includes(",") || value.includes("\n") || value.includes('"')
-              ? `"${value.replace(/"/g, '""')}"`
-              : value;
-          })
-          .join(",")
-      ),
-    ].join("\n");
-
-    // Create and trigger download
-    const blob = new Blob([csvContent], { type: "text/csv" });
-    const url = window.URL.createObjectURL(blob);
-    const link = document.createElement("a");
-    link.href = url;
-    link.setAttribute("download", `crawled-pages-${jobId}.csv`);
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    window.URL.revokeObjectURL(url);
-  } catch (error) {
-    console.error("Error processing download:", error);
   }
 };
 
@@ -134,11 +70,11 @@ const CrawlJobsTable = ({
   initialJobs,
   initialTotal,
 }: {
-  initialJobs: CrawlJob[];
+  initialJobs: WebCrawlJob[];
   initialTotal: number;
 }) => {
   const router = useRouter();
-  const [jobs, setJobs] = useState<CrawlJob[]>(initialJobs);
+  const [jobs, setJobs] = useState<WebCrawlJob[]>(initialJobs);
   const [error, setError] = useState<string>("");
   const [loading, setLoading] = useState(false);
   const [selectedStatus, setSelectedStatus] = useState<string>("all");
@@ -279,6 +215,14 @@ const CrawlJobsTable = ({
                       crawlJobId={job.id}
                       status={job.status}
                       onStop={() => {
+                        // Optionally handle any local state updates
+                        fetchJobs(pagination.page, selectedStatus);
+                      }}
+                    />
+                    <DeleteCrawlJobButton
+                      crawlJobId={job.id}
+                      status={job.status}
+                      onDelete={() => {
                         // Optionally handle any local state updates
                         fetchJobs(pagination.page, selectedStatus);
                       }}
