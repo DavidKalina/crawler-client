@@ -1,12 +1,13 @@
 "use client";
 
 import React, { useState } from "react";
-import { Menu, X, User, Diamond } from "lucide-react";
+import { Menu, X, Bell, UserCircle, LogOut, Settings, Diamond } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useRouter } from "next/navigation";
@@ -23,7 +24,9 @@ const Navbar = () => {
     router.push("/auth/login");
   };
 
-  const navigationItems = [{ name: "Settings", href: "/settings" }];
+  const navigationItems = [
+    { name: "Settings", href: "/settings", icon: <Settings className="h-4 w-4" /> },
+  ];
 
   return (
     <nav className="bg-zinc-900 border-b border-zinc-800">
@@ -50,8 +53,9 @@ const Navbar = () => {
               <Link
                 key={item.name}
                 href={item.href}
-                className="text-zinc-400 hover:text-white transition-colors text-sm"
+                className="flex items-center gap-2 text-zinc-400 hover:text-white transition-colors text-sm"
               >
+                {item.icon}
                 {item.name}
               </Link>
             ))}
@@ -64,14 +68,23 @@ const Navbar = () => {
                   size="icon"
                   className="text-zinc-400 hover:text-white hover:bg-zinc-800"
                 >
-                  <User className="h-5 w-5" />
+                  <UserCircle className="h-6 w-6" />
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent className="bg-zinc-900 border-zinc-800">
                 <DropdownMenuItem
-                  onClick={handleSignOut}
-                  className="text-zinc-400 hover:text-white hover:bg-zinc-800 cursor-pointer"
+                  onClick={() => router.push("/settings")}
+                  className="text-zinc-400 hover:text-white hover:bg-zinc-800 cursor-pointer flex items-center gap-2"
                 >
+                  <Settings className="h-5 w-5" />
+                  Settings
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem
+                  onClick={handleSignOut}
+                  className="text-zinc-400 hover:text-white hover:bg-zinc-800 cursor-pointer flex items-center gap-2"
+                >
+                  <LogOut className="h-5 w-5" />
                   Sign out
                 </DropdownMenuItem>
               </DropdownMenuContent>
@@ -100,20 +113,22 @@ const Navbar = () => {
               <Link
                 key={item.name}
                 href={item.href}
-                className="block text-zinc-400 hover:text-white hover:bg-zinc-800 px-3 py-2 rounded-md text-sm transition-colors"
+                className="flex items-center gap-2 text-zinc-400 hover:text-white hover:bg-zinc-800 px-3 py-2 rounded-md text-sm transition-colors"
                 onClick={() => setIsOpen(false)}
               >
+                {item.icon}
                 {item.name}
               </Link>
             ))}
             <Button
               variant="ghost"
-              className="w-full text-left px-3 text-zinc-400 hover:text-white hover:bg-zinc-800"
+              className="w-full text-left px-3 text-zinc-400 hover:text-white hover:bg-zinc-800 flex items-center gap-2"
               onClick={() => {
                 handleSignOut();
                 setIsOpen(false);
               }}
             >
+              <LogOut className="h-5 w-5" />
               Sign out
             </Button>
           </div>
