@@ -59,6 +59,8 @@ const DashboardLayout = ({
             </p>
           </div>
 
+          {/* Main Content */}
+          <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">{children}</div>
           {/* Stats Grid */}
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
             <ActiveCrawlsStats />
@@ -71,9 +73,6 @@ const DashboardLayout = ({
               description="Of monthly allocation used"
             />
           </div>
-
-          {/* Main Content */}
-          <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">{children}</div>
         </div>
       </div>
     </div>
