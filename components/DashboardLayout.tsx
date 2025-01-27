@@ -3,7 +3,7 @@ import { CompletedJobsStats } from "@/components/CompletedJobStats";
 import { FailedJobsStats } from "@/components/FailedJobStats";
 import { StatsCard } from "@/components/StatsCard";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Activity, Loader2 } from "lucide-react";
+import { Activity, Diamond, Loader2 } from "lucide-react";
 
 interface DashboardLayoutProps {
   children: React.ReactNode;
@@ -22,7 +22,15 @@ const DashboardLayout = ({
 }: DashboardLayoutProps) => {
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-zinc-950 flex items-center justify-center">
+      <div className="min-h-screen bg-zinc-950 flex flex-col items-center justify-center space-y-6">
+        {/* Logo with glow effect */}
+        <div className="relative">
+          <div className="absolute inset-0 bg-blue-500/20 blur-xl rounded-full animate-pulse" />
+          <div className="relative p-4 rounded-lg bg-zinc-900 border border-zinc-800">
+            <Diamond className="h-8 w-8 text-blue-400" />
+          </div>
+        </div>
+        {/* Loading message with spinner */}
         <div className="flex items-center space-x-3 px-4 py-3 rounded-lg bg-zinc-900 border border-zinc-800">
           <Loader2 className="h-5 w-5 text-blue-400 animate-spin" />
           <p className="text-sm text-zinc-400">Loading dashboard...</p>
