@@ -1,20 +1,20 @@
-import React from "react";
+import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Download } from "lucide-react";
 import { createClient } from "@/utils/supabase/client";
 
 const DownloadCrawledPages = ({ crawlJobId = null }: { crawlJobId: string | null }) => {
+  const [isLoading, setIsLoading] = useState(false);
   const supabase = createClient();
 
   const downloadPages = async () => {
     try {
-      // Build the query based on whether crawlJobId is provided
+      setIsLoading(true);
       const query = supabase
         .from("crawled_pages")
         .select("*")
         .order("created_at", { ascending: true });
 
-      // Add crawlJobId filter if provided
       if (crawlJobId) {
         query.eq("crawl_job_id", crawlJobId);
       }
@@ -26,7 +26,6 @@ const DownloadCrawledPages = ({ crawlJobId = null }: { crawlJobId: string | null
         return;
       }
 
-      // Convert data to CSV
       const headers = [
         "id",
         "url",
@@ -36,13 +35,13 @@ const DownloadCrawledPages = ({ crawlJobId = null }: { crawlJobId: string | null
         "created_at",
         "processing_status",
       ];
+
       const csvContent = [
         headers.join(","),
         ...data.map((row) =>
           headers
             .map((header) => {
               const value = row[header]?.toString() || "";
-              // Escape quotes and wrap in quotes if contains comma or newline
               return value.includes(",") || value.includes("\n") || value.includes('"')
                 ? `"${value.replace(/"/g, '""')}"`
                 : value;
@@ -51,7 +50,6 @@ const DownloadCrawledPages = ({ crawlJobId = null }: { crawlJobId: string | null
         ),
       ].join("\n");
 
-      // Create and trigger download
       const blob = new Blob([csvContent], { type: "text/csv" });
       const url = window.URL.createObjectURL(blob);
       const link = document.createElement("a");
@@ -63,6 +61,8 @@ const DownloadCrawledPages = ({ crawlJobId = null }: { crawlJobId: string | null
       window.URL.revokeObjectURL(url);
     } catch (error) {
       console.error("Error processing download:", error);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -70,10 +70,12 @@ const DownloadCrawledPages = ({ crawlJobId = null }: { crawlJobId: string | null
     <Button
       onClick={(e) => {
         e.stopPropagation();
-
         downloadPages();
       }}
-      className="flex items-center gap-2 bg-blue-500"
+      variant="ghost"
+      size="icon"
+      className="h-8 w-8 rounded-full bg-transparent border border-zinc-800 text-zinc-300 hover:text-blue-400 hover:border-blue-400/50 hover:bg-blue-400/10 transition-all duration-200 disabled:opacity-50"
+      disabled={isLoading}
     >
       <Download className="h-4 w-4" />
     </Button>

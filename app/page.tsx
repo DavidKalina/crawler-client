@@ -1,13 +1,12 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { createClient } from "@/utils/supabase/client";
 import CrawlInitiator from "@/components/CrawlInitiator";
 import CrawlJobsTable from "@/components/CrawlJobTable";
-import QuotaDisplayWrapper from "@/components/QuotaDisplayWrapper";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { CrawlJobsData } from "@/types/jobTypes";
 import DashboardLayout from "@/components/DashboardLayout";
+import QuotaDisplayWrapper from "@/components/QuotaDisplayWrapper";
+import { CrawlJobsData } from "@/types/jobTypes";
+import { createClient } from "@/utils/supabase/client";
+import { useEffect, useState } from "react";
 
 const CrawlJobsPage = () => {
   const [isLoading, setIsLoading] = useState(true);

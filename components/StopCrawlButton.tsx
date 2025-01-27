@@ -47,7 +47,15 @@ const StopCrawlButton = ({
   }
 
   return (
-    <Button onClick={stopCrawl} className="flex items-center gap-2 bg-red-500">
+    <Button
+      onClick={(e) => {
+        e.stopPropagation();
+        stopCrawl(e);
+      }}
+      variant="ghost"
+      size="icon"
+      className="h-8 w-8 rounded-full bg-transparent border border-zinc-800 text-zinc-300 hover:text-red-400 hover:border-red-400/50 hover:bg-red-400/10 transition-all duration-200 disabled:opacity-50"
+    >
       <Square className="h-4 w-4" />
     </Button>
   );

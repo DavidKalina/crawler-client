@@ -1,38 +1,73 @@
-import React from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Progress } from "@/components/ui/progress";
+import { Battery, Database } from "lucide-react";
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const QuotaDisplay = ({ monthlyQuota, firstMonthQuota, pagesUsed }: any) => {
   const effectiveQuota = firstMonthQuota ?? monthlyQuota;
   const remaining = effectiveQuota - pagesUsed;
   const usagePercentage = Math.min((pagesUsed / effectiveQuota) * 100, 100);
 
+  // Function to determine progress color based on usage
+  const getProgressColor = (percentage: number) => {
+    if (percentage >= 90) return "bg-red-400";
+    if (percentage >= 75) return "bg-orange-400";
+    if (percentage >= 50) return "bg-blue-400";
+    return "bg-emerald-400";
+  };
+
   return (
-    <Card className="w-full">
-      <CardHeader>
-        <CardTitle>Pages Quota</CardTitle>
+    <Card className="bg-zinc-900 border border-zinc-800">
+      <CardHeader className="border-b border-zinc-800">
+        <div className="flex items-center space-x-2">
+          <Database className="h-4 w-4 text-blue-400" />
+          <CardTitle className="text-md font-medium text-zinc-100">Pages Quota</CardTitle>
+        </div>
       </CardHeader>
-      <CardContent className="space-y-4">
-        <div className="flex justify-between text-sm">
-          <span className="text-muted-foreground">Used</span>
-          <span className="font-medium">{pagesUsed?.toLocaleString()} pages</span>
+      <CardContent className="space-y-6 pt-6">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center space-x-2">
+            <Battery className="h-4 w-4 text-zinc-400" />
+            <span className="text-sm font-medium text-zinc-300">Usage Status</span>
+          </div>
+          <span className="text-sm font-medium text-zinc-100">
+            {pagesUsed?.toLocaleString()} pages
+          </span>
         </div>
 
-        <Progress value={usagePercentage} className="h-2" />
-
-        <div className="flex justify-between text-sm">
-          <div>
-            <span className="text-muted-foreground">Remaining: </span>
-            <span className="font-medium">{remaining?.toLocaleString()} pages</span>
+        <div className="space-y-2">
+          <div className="relative h-2 w-full bg-zinc-800 rounded-full overflow-hidden">
+            <div
+              className={`absolute left-0 top-0 h-full transition-all duration-500 ${getProgressColor(
+                usagePercentage
+              )}`}
+              style={{ width: `${usagePercentage}%` }}
+            />
           </div>
-          <div>
-            <span className="text-muted-foreground">Total: </span>
-            <span className="font-medium">{effectiveQuota?.toLocaleString()} pages</span>
+          <div className="flex justify-between text-xs text-zinc-500">
+            <span>0%</span>
+            <span>50%</span>
+            <span>100%</span>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-2 gap-4">
+          <div className="space-y-1">
+            <span className="text-xs text-zinc-500">Remaining</span>
+            <p className="text-sm font-medium text-zinc-100">{remaining?.toLocaleString()} pages</p>
+          </div>
+          <div className="space-y-1 text-right">
+            <span className="text-xs text-zinc-500">Total Quota</span>
+            <p className="text-sm font-medium text-zinc-100">
+              {effectiveQuota?.toLocaleString()} pages
+            </p>
           </div>
         </div>
 
         {firstMonthQuota && firstMonthQuota !== monthlyQuota && (
-          <p className="text-xs text-muted-foreground mt-2">Special first month quota applied</p>
+          <div className="flex items-center space-x-1.5 rounded-md bg-blue-400/10 px-2.5 py-1.5">
+            <div className="h-1 w-1 rounded-full bg-blue-400"></div>
+            <p className="text-xs text-blue-400">Special first month quota applied</p>
+          </div>
         )}
       </CardContent>
     </Card>

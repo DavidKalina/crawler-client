@@ -28,7 +28,6 @@ const DeleteCrawlJobButton = ({
   const supabase = createClient();
 
   const deleteCrawl = async (e: React.MouseEvent) => {
-    // Prevent event from bubbling up to the row
     e.stopPropagation();
 
     try {
@@ -48,7 +47,6 @@ const DeleteCrawlJobButton = ({
     }
   };
 
-  // Don't show the delete button for running or pending crawls
   if (status === "running" || status === "pending") {
     return null;
   }
@@ -57,23 +55,37 @@ const DeleteCrawlJobButton = ({
     <AlertDialog>
       <AlertDialogTrigger asChild>
         <Button
-          variant="destructive"
-          className="flex items-center gap-2 bg-red-500"
+          variant="ghost"
+          size="icon"
+          className="h-8 w-8 rounded-full bg-transparent border border-zinc-800 text-zinc-300 hover:text-red-400 hover:border-red-400/50 hover:bg-red-400/10 transition-all duration-200"
           onClick={(e) => e.stopPropagation()}
         >
           <Trash2 className="h-4 w-4" />
         </Button>
       </AlertDialogTrigger>
-      <AlertDialogContent onClick={(e) => e.stopPropagation()}>
+      <AlertDialogContent
+        onClick={(e) => e.stopPropagation()}
+        className="bg-zinc-900 border border-zinc-800"
+      >
         <AlertDialogHeader>
-          <AlertDialogTitle>Delete Crawl Job</AlertDialogTitle>
-          <AlertDialogDescription>
+          <AlertDialogTitle className="text-zinc-100">Delete Crawl Job</AlertDialogTitle>
+          <AlertDialogDescription className="text-zinc-400">
             Are you sure you want to delete this crawl job? This action cannot be undone.
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <AlertDialogCancel onClick={(e) => e.stopPropagation()}>Cancel</AlertDialogCancel>
-          <AlertDialogAction onClick={deleteCrawl}>Delete</AlertDialogAction>
+          <AlertDialogCancel
+            onClick={(e) => e.stopPropagation()}
+            className="bg-transparent border border-zinc-800 text-zinc-300 hover:bg-zinc-800 hover:text-white"
+          >
+            Cancel
+          </AlertDialogCancel>
+          <AlertDialogAction
+            onClick={deleteCrawl}
+            className="bg-red-500/10 border border-red-500/20 text-red-400 hover:bg-red-500/20 hover:text-red-300"
+          >
+            Delete
+          </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>
     </AlertDialog>

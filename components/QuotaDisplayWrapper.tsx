@@ -80,7 +80,7 @@ const QuotaDisplayWrapper = () => {
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [userId]);
+  }, [supabase, userId]);
 
   if (!userId) return <div>Please sign in to view your quota.</div>;
   if (!quotaInfo) return <div>Loading quota information...</div>;
