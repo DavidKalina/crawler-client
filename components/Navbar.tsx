@@ -1,7 +1,5 @@
 "use client";
 
-import React, { useState } from "react";
-import { Menu, X, Bell, UserCircle, LogOut, Settings, Diamond } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -10,9 +8,11 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { useRouter } from "next/navigation";
-import Link from "next/link";
 import { createClient } from "@/utils/supabase/client";
+import { Diamond, LogOut, Menu, Settings, UserCircle, X } from "lucide-react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
