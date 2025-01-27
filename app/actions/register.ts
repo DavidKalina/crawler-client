@@ -23,13 +23,16 @@ interface CreateProfileParams {
 
 export async function createProfile({ userId, fullName, email, companyName }: CreateProfileParams) {
   try {
+    const STARTER_PAGES = 1000; // Give new users some free pages to start with
+
     const { error } = await supabaseAdmin.from("profiles").insert([
       {
         id: userId,
         full_name: fullName,
         email: email,
         company_name: companyName,
-        monthly_quota: 5000,
+        available_pages: STARTER_PAGES,
+        lifetime_pages_purchased: STARTER_PAGES,
         pages_used: 0,
         created_at: new Date().toISOString(),
       },

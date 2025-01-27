@@ -16,9 +16,9 @@ interface UserProfile {
   full_name: string;
   company_name: string | null;
   email: string;
-  monthly_quota: number;
+  available_pages: number;
   pages_used: number;
-  last_quota_reset: string;
+  lifetime_pages_purchased: number;
 }
 
 export default function SettingsPage() {
@@ -46,7 +46,9 @@ export default function SettingsPage() {
 
       const { data, error } = await supabase
         .from("profiles")
-        .select("*")
+        .select(
+          "full_name, company_name, email, available_pages, pages_used, lifetime_pages_purchased"
+        )
         .eq("id", session.user.id)
         .single();
 
@@ -164,8 +166,8 @@ export default function SettingsPage() {
               <TabsContent value="overview" className="mt-0 space-y-6">
                 <UsageOverview
                   pagesUsed={profile.pages_used}
-                  monthlyQuota={profile.monthly_quota}
-                  lastQuotaReset={profile.last_quota_reset}
+                  availablePages={profile.available_pages}
+                  lifetimePagesPurchased={profile.lifetime_pages_purchased}
                 />
               </TabsContent>
 

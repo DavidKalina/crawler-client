@@ -53,6 +53,7 @@ export const ActiveCrawlsStats = () => {
 
   return (
     <StatsCard
+      variant="blue"
       title="Active Crawls"
       value={stats.count}
       icon={Activity}

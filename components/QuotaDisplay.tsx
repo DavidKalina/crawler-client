@@ -1,40 +1,46 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Battery, Database, Zap, ChevronRight } from "lucide-react";
+import { Database, Package, ChevronRight, History } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 interface QuotaDisplayProps {
-  monthlyQuota: number;
-  firstMonthQuota?: number;
+  availablePages: number;
   pagesUsed: number;
+  lifetimePagesPurchased: number;
   onUpgradeClick: () => void;
 }
 
 const QuotaDisplay = ({
-  monthlyQuota,
-  firstMonthQuota,
+  availablePages,
   pagesUsed,
+  lifetimePagesPurchased,
   onUpgradeClick,
 }: QuotaDisplayProps) => {
-  const effectiveQuota = firstMonthQuota ?? monthlyQuota;
-  const remaining = Math.max(0, effectiveQuota - pagesUsed);
-  const usagePercentage = Math.min((pagesUsed / effectiveQuota) * 100, 100);
-  const shouldShowUpgrade = usagePercentage >= 75;
+  // Show upgrade prompt if less than 25% of lifetime purchased pages are available
+  const shouldShowUpgrade = availablePages < lifetimePagesPurchased * 0.25;
 
-  const getProgressColor = (percentage: number) => {
-    if (percentage >= 90) return "bg-red-400";
-    if (percentage >= 75) return "bg-orange-400";
-    if (percentage >= 50) return "bg-blue-400";
-    return "bg-emerald-400";
-  };
-
-  const getStatusMessage = (percentage: number) => {
-    if (percentage >= 90) {
-      return "Running low on pages! Upgrade now to ensure uninterrupted crawling.";
+  const getStatusMessage = (availablePages: number) => {
+    if (availablePages === 0) {
+      return "You've used all your available pages. Purchase more to continue crawling.";
     }
-    if (percentage >= 75) {
-      return "Approaching quota limit. Consider upgrading for more capacity.";
+    if (availablePages < 1000) {
+      return "Running low on pages! Purchase more to ensure uninterrupted crawling.";
+    }
+    if (availablePages < 5000) {
+      return "Consider purchasing more pages to maintain your crawling capacity.";
     }
     return "";
+  };
+
+  const usagePercentage = Math.max(
+    0,
+    Math.min(((lifetimePagesPurchased - availablePages) / lifetimePagesPurchased) * 100, 100)
+  );
+
+  const getProgressColor = (availablePages: number) => {
+    if (availablePages === 0) return "bg-red-400";
+    if (availablePages < 1000) return "bg-orange-400";
+    if (availablePages < 5000) return "bg-blue-400";
+    return "bg-emerald-400";
   };
 
   return (
@@ -43,25 +49,23 @@ const QuotaDisplay = ({
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-2">
             <Database className="h-4 w-4 text-blue-400" />
-            <CardTitle className="text-md font-medium text-zinc-100">Pages Quota</CardTitle>
+            <CardTitle className="text-md font-medium text-zinc-100">Crawling Pages</CardTitle>
           </div>
-          {firstMonthQuota && firstMonthQuota !== monthlyQuota && (
-            <div className="flex items-center space-x-1.5 rounded-md bg-blue-400/10 px-2.5 py-1">
-              <div className="h-1 w-1 rounded-full bg-blue-400"></div>
-              <p className="text-xs text-blue-400">First month bonus active</p>
-            </div>
-          )}
+          <div className="flex items-center space-x-1.5 rounded-md bg-blue-400/10 px-2.5 py-1">
+            <Package className="h-3 w-3 text-blue-400" />
+            <p className="text-xs text-blue-400">Pay as you go</p>
+          </div>
         </div>
       </CardHeader>
 
       <CardContent className="space-y-6 pt-6">
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-2">
-            <Battery className="h-4 w-4 text-zinc-400" />
-            <span className="text-sm font-medium text-zinc-300">Usage Status</span>
+            <History className="h-4 w-4 text-zinc-400" />
+            <span className="text-sm font-medium text-zinc-300">Usage History</span>
           </div>
           <span className="text-sm font-medium text-zinc-100 tabular-nums">
-            {pagesUsed.toLocaleString()} pages
+            {pagesUsed.toLocaleString()} pages crawled
           </span>
         </div>
 
@@ -75,29 +79,24 @@ const QuotaDisplay = ({
           >
             <div
               className={`absolute left-0 top-0 h-full transition-all duration-500 ${getProgressColor(
-                usagePercentage
+                availablePages
               )}`}
               style={{ width: `${usagePercentage}%` }}
             />
-          </div>
-          <div className="flex justify-between text-xs text-zinc-500 tabular-nums">
-            <span>0%</span>
-            <span>50%</span>
-            <span>100%</span>
           </div>
         </div>
 
         <div className="grid grid-cols-2 gap-4">
           <div className="space-y-1">
-            <span className="text-xs text-zinc-500">Remaining</span>
+            <span className="text-xs text-zinc-500">Available Pages</span>
             <p className="text-sm font-medium text-zinc-100 tabular-nums">
-              {remaining.toLocaleString()} pages
+              {availablePages.toLocaleString()} pages
             </p>
           </div>
           <div className="space-y-1 text-right">
-            <span className="text-xs text-zinc-500">Total Quota</span>
+            <span className="text-xs text-zinc-500">Total Purchased</span>
             <p className="text-sm font-medium text-zinc-100 tabular-nums">
-              {effectiveQuota.toLocaleString()} pages
+              {lifetimePagesPurchased.toLocaleString()} pages
             </p>
           </div>
         </div>
@@ -111,11 +110,11 @@ const QuotaDisplay = ({
                        focus-visible:ring-offset-zinc-900 focus-visible:ring-blue-400/20
                        group"
             >
-              <Zap className="h-4 w-4 mr-2" />
-              <span>Upgrade Quota</span>
+              <Package className="h-4 w-4 mr-2" />
+              <span>Purchase More Pages</span>
               <ChevronRight className="h-4 w-4 ml-2 group-hover:translate-x-0.5 transition-transform" />
             </Button>
-            <p className="text-xs text-zinc-500 text-center">{getStatusMessage(usagePercentage)}</p>
+            <p className="text-xs text-zinc-500 text-center">{getStatusMessage(availablePages)}</p>
           </div>
         )}
       </CardContent>

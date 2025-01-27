@@ -1,13 +1,11 @@
-"use client";
-
 import { createClient } from "@/utils/supabase/client";
 import { useEffect, useState } from "react";
 import QuotaDisplay from "./QuotaDisplay";
 
 interface QuotaInfo {
-  monthly_quota: number;
-  first_month_quota: number;
+  available_pages: number;
   pages_used: number;
+  lifetime_pages_purchased: number;
 }
 
 const QuotaDisplayWrapper = () => {
@@ -46,7 +44,7 @@ const QuotaDisplayWrapper = () => {
       try {
         const { data, error } = await supabase
           .from("profiles")
-          .select("monthly_quota, first_month_quota, pages_used")
+          .select("available_pages, pages_used, lifetime_pages_purchased")
           .eq("id", userId)
           .single();
 
@@ -82,14 +80,17 @@ const QuotaDisplayWrapper = () => {
     };
   }, [supabase, userId]);
 
-  if (!userId) return <div>Please sign in to view your quota.</div>;
-  if (!quotaInfo) return <div>Loading quota information...</div>;
+  if (!userId)
+    return <div className="text-sm text-zinc-400">Please sign in to view your quota.</div>;
+
+  if (!quotaInfo) return <div className="text-sm text-zinc-400">Loading quota information...</div>;
 
   return (
     <QuotaDisplay
-      monthlyQuota={quotaInfo.monthly_quota}
-      firstMonthQuota={quotaInfo.first_month_quota}
+      availablePages={quotaInfo.available_pages}
       pagesUsed={quotaInfo.pages_used}
+      lifetimePagesPurchased={quotaInfo.lifetime_pages_purchased}
+      onUpgradeClick={() => {}}
     />
   );
 };

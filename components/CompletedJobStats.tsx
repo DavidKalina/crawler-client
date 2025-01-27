@@ -56,6 +56,7 @@ export const CompletedJobsStats = () => {
 
   return (
     <StatsCard
+      variant="green"
       title="Completed Today"
       value={stats.count}
       icon={Check}

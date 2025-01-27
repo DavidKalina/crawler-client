@@ -56,6 +56,7 @@ export const FailedJobsStats = () => {
 
   return (
     <StatsCard
+      variant="red"
       title="Failed Jobs"
       value={stats.count}
       icon={AlertCircle}
