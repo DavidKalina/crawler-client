@@ -1,24 +1,23 @@
-import React, { useState } from "react";
-import { Globe, Layers, LinkIcon, Loader2 } from "lucide-react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+"use client";
+
+import { startCrawl } from "@/app/actions/initiateCrawl";
 import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Slider } from "@/components/ui/slider";
-import { Alert, AlertDescription } from "@/components/ui/alert";
-import { startCrawl } from "@/app/actions/initiateCrawl";
+import { useToast } from "@/hooks/use-toast";
+import { Globe, Layers, LinkIcon, Loader2 } from "lucide-react";
+import { useState } from "react";
 
 const CrawlInitiator = () => {
   const [depth, setDepth] = useState(1);
   const [url, setUrl] = useState("https://books.toscrape.com");
   const [allowedDomains, setAllowedDomains] = useState("books.toscrape.com");
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState("");
-  const [success, setSuccess] = useState("");
+  const { toast } = useToast();
 
   const handleSubmit = async () => {
     setIsLoading(true);
-    setError("");
-    setSuccess("");
 
     try {
       const result = await startCrawl({
@@ -31,11 +30,19 @@ const CrawlInitiator = () => {
         throw new Error(result.error);
       }
 
-      setSuccess(`Crawl started successfully!`);
       setUrl((prev) => prev);
       setAllowedDomains("");
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "An error occurred");
+      toast({
+        title: "Crawl Started Successful",
+        description: "Successfully started crawl job",
+        variant: "default",
+      });
+    } catch {
+      toast({
+        title: "Crawl Started Failure",
+        description: "Failed to start crawl job",
+        variant: "destructive",
+      });
     } finally {
       setIsLoading(false);
     }
@@ -51,18 +58,6 @@ const CrawlInitiator = () => {
       </CardHeader>
 
       <CardContent className="space-y-6 pt-6">
-        {error && (
-          <Alert variant="destructive" className="bg-red-500/10 border-red-500/20 text-red-400">
-            <AlertDescription>{error}</AlertDescription>
-          </Alert>
-        )}
-
-        {success && (
-          <Alert className="bg-emerald-500/10 border-emerald-500/20 text-emerald-400">
-            <AlertDescription>{success}</AlertDescription>
-          </Alert>
-        )}
-
         <div className="relative">
           <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
             <LinkIcon className="h-4 w-4 text-zinc-500" />
