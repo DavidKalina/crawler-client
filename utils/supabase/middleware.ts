@@ -17,7 +17,7 @@ export async function updateSession(request: NextRequest) {
           return request.cookies.getAll();
         },
         setAll(cookiesToSet) {
-          cookiesToSet.forEach(({ name, value, options }) => request.cookies.set(name, value));
+          cookiesToSet.forEach(({ name, value }) => request.cookies.set(name, value));
           response = NextResponse.next({
             request,
           });
@@ -55,7 +55,6 @@ export async function updateSession(request: NextRequest) {
   // Public paths that don't require authentication
   const isPublicPath =
     path.includes("/auth") ||
-    path === "/" ||
     path.includes("/api/") ||
     path.includes("/_next/") ||
     path.includes("/static/") ||
