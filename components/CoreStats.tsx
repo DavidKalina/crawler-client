@@ -9,6 +9,7 @@ interface StatItemProps {
   label: string;
   value: string | number;
   color: string;
+  bgColor: string;
 }
 
 interface CrawlStats {
@@ -19,7 +20,7 @@ interface CrawlStats {
   avgTokens: number;
 }
 
-const POLLING_INTERVAL = 5000; // 5 seconds
+const POLLING_INTERVAL = 5000;
 
 const CoreStats = ({ crawlJobId }: { crawlJobId: string }) => {
   const [stats, setStats] = useState<CrawlStats | null>(null);
@@ -42,15 +43,11 @@ const CoreStats = ({ crawlJobId }: { crawlJobId: string }) => {
         avgTokens: data.avgTokens,
       };
 
-      // Only update state if the values have changed
       setStats((current) => {
         if (!current) return newStats;
-
-        // Check if any values have changed
         const hasChanged = Object.keys(newStats).some(
           (key) => newStats[key as keyof CrawlStats] !== current[key as keyof CrawlStats]
         );
-
         return hasChanged ? newStats : current;
       });
 
@@ -62,31 +59,27 @@ const CoreStats = ({ crawlJobId }: { crawlJobId: string }) => {
   }, [crawlJobId, supabase]);
 
   useEffect(() => {
-    // Initial fetch
     fetchCrawlStats();
-
-    // Set up polling
     const pollInterval = setInterval(fetchCrawlStats, POLLING_INTERVAL);
-
-    // Cleanup interval on unmount
     return () => clearInterval(pollInterval);
   }, [fetchCrawlStats]);
 
-  const StatItem = ({ icon: Icon, label, value, color }: StatItemProps) => (
-    <div className="bg-white rounded-lg border border-gray-200 p-6 group hover:border-gray-300 transition-colors">
-      <div className="flex items-start gap-4">
-        {/* Icon container */}
+  const StatItem = ({ icon: Icon, label, value, color, bgColor }: StatItemProps) => (
+    <div
+      className="group relative bg-zinc-900/50 rounded-lg border border-zinc-800/50 p-4 
+                  hover:bg-zinc-800/50 hover:border-zinc-700/50 transition-all duration-200"
+    >
+      <div className="flex items-center gap-3">
         <div
-          className={`shrink-0 w-12 h-12 rounded-lg ${color} flex items-center justify-center
-          transition-transform duration-200 group-hover:scale-105`}
+          className={`shrink-0 p-2 rounded-md ${bgColor} ${color}
+                      transition-transform duration-200 group-hover:scale-105`}
         >
-          <Icon className="w-6 h-6 text-white" strokeWidth={1.5} />
+          <Icon className="w-4 h-4" strokeWidth={1.5} />
         </div>
 
-        {/* Text content */}
         <div className="min-w-0">
-          <p className="text-sm text-gray-500 font-medium">{label}</p>
-          <p className="text-2xl font-semibold text-gray-900 mt-1">{value}</p>
+          <p className="text-xs text-zinc-500 font-medium">{label}</p>
+          <p className="text-sm font-medium text-zinc-200 mt-0.5">{value}</p>
         </div>
       </div>
     </div>
@@ -94,42 +87,52 @@ const CoreStats = ({ crawlJobId }: { crawlJobId: string }) => {
 
   if (error) {
     return (
-      <div className="rounded-lg border border-red-200 bg-red-50 p-4 text-red-700">
+      <div className="rounded-lg border border-red-500/20 bg-red-500/10 p-3 text-red-400 text-sm">
         Failed to load stats: {error}
       </div>
     );
   }
 
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
       <StatItem
         icon={Globe2}
         label="Pages Crawled"
         value={stats?.pagesCrawled.toLocaleString() ?? 0}
-        color="bg-blue-500"
+        color="text-blue-400"
+        bgColor="bg-blue-400/10"
       />
 
-      <StatItem icon={Clock} label="Duration" value={stats?.duration ?? ""} color="bg-indigo-500" />
+      <StatItem
+        icon={Clock}
+        label="Duration"
+        value={stats?.duration ?? ""}
+        color="text-indigo-400"
+        bgColor="bg-indigo-400/10"
+      />
 
       <StatItem
         icon={AlertCircle}
         label="Errors"
         value={stats?.errors.toLocaleString() ?? ""}
-        color="bg-red-500"
+        color="text-red-400"
+        bgColor="bg-red-400/10"
       />
 
       <StatItem
         icon={HardDrive}
         label="Total Size"
         value={stats?.totalSize ?? 0}
-        color="bg-emerald-500"
+        color="text-emerald-400"
+        bgColor="bg-emerald-400/10"
       />
 
       <StatItem
         icon={Hash}
         label="Avg. Tokens/Page"
         value={stats?.avgTokens.toLocaleString() ?? ""}
-        color="bg-violet-500"
+        color="text-violet-400"
+        bgColor="bg-violet-400/10"
       />
     </div>
   );

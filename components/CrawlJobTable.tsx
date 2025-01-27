@@ -200,7 +200,7 @@ const CrawlJobsTable = ({
               variant="outline"
               onClick={() => handlePageChange(pagination.page + 1)}
               disabled={pagination.page === pagination.totalPages || loading}
-              className="bg-transparent border-zinc-800 text-zinc-400 hover:bg-zinc-800 hover:text-white disabled:opacity-50 disabled:hover:bg-transparent"
+              className="bg-transparent border-green-800 text-green-400 hover:bg-zinc-800 hover:text-white disabled:opacity-50 disabled:hover:bg-transparent"
             >
               Next
             </Button>

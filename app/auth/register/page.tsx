@@ -15,7 +15,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { createClient } from "@/utils/supabase/client";
-import { Loader2 } from "lucide-react";
+import { Building2, Loader2, Lock, Mail, User, UserPlus } from "lucide-react";
 import { useRouter } from "next/navigation";
 import React, { useState } from "react";
 
@@ -147,124 +147,192 @@ const RegistrationPage = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 p-4">
-      <Card className="w-full max-w-md">
-        <CardHeader>
-          <CardTitle className="text-2xl font-bold text-center">Create Account</CardTitle>
-          <CardDescription className="text-center">
-            Get started with 1000 free pages per month
-          </CardDescription>
-        </CardHeader>
-        <form onSubmit={handleSubmit}>
-          <CardContent className="space-y-4">
-            {error && (
-              <Alert variant="destructive">
-                <AlertDescription>{error}</AlertDescription>
-              </Alert>
-            )}
-
-            <div className="space-y-2">
-              <Label htmlFor="fullName">Full Name</Label>
-              <Input
-                id="fullName"
-                name="fullName"
-                placeholder="John Doe"
-                value={formData.fullName}
-                onChange={handleInputChange}
-                required
-              />
+    <div className="min-h-screen flex items-center justify-center bg-zinc-950 p-4">
+      <div className="w-full max-w-md">
+        <Card className="bg-zinc-900 border-zinc-800">
+          <CardHeader className="space-y-2 text-center">
+            <div className="mx-auto p-2 rounded-full bg-blue-500/10 w-fit">
+              <UserPlus className="h-6 w-6 text-blue-400" />
             </div>
+            <CardTitle className="text-xl font-medium text-zinc-100">Create Account</CardTitle>
+            <CardDescription className="text-zinc-400">
+              Get started with 5000 free pages per month
+            </CardDescription>
+          </CardHeader>
 
-            <div className="space-y-2">
-              <Label htmlFor="email">Email</Label>
-              <Input
-                id="email"
-                name="email"
-                type="email"
-                placeholder="you@example.com"
-                value={formData.email}
-                onChange={handleInputChange}
-                required
-              />
-              {validationErrors.email && (
-                <p className="text-sm text-red-500">{validationErrors.email}</p>
+          <form onSubmit={handleSubmit}>
+            <CardContent className="space-y-4">
+              {error && (
+                <Alert className="bg-red-500/10 border-red-500/20 text-red-400">
+                  <AlertDescription>{error}</AlertDescription>
+                </Alert>
               )}
-            </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="companyName">Company Name (Optional)</Label>
-              <Input
-                id="companyName"
-                name="companyName"
-                placeholder="Acme Corp"
-                value={formData.companyName}
-                onChange={handleInputChange}
-              />
-            </div>
+              <div className="space-y-2">
+                <Label htmlFor="fullName" className="text-zinc-400">
+                  Full Name
+                </Label>
+                <div className="relative">
+                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <User className="h-4 w-4 text-zinc-500" />
+                  </div>
+                  <Input
+                    id="fullName"
+                    name="fullName"
+                    placeholder="John Doe"
+                    value={formData.fullName}
+                    onChange={handleInputChange}
+                    required
+                    className="pl-10 bg-zinc-900 border-zinc-800 text-zinc-100 placeholder:text-zinc-500 
+                             focus-visible:ring-blue-400/20 focus-visible:border-blue-400/20 focus-visible:ring-offset-0"
+                  />
+                </div>
+              </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="password">Password</Label>
-              <Input
-                id="password"
-                name="password"
-                type="password"
-                value={formData.password}
-                onChange={handleInputChange}
-                required
-              />
-              {validationErrors.password ? (
-                <p className="text-sm text-red-500">{validationErrors.password}</p>
-              ) : (
-                <p className="text-sm text-gray-500">
-                  Must be at least 8 characters with one uppercase letter and one number
-                </p>
-              )}
-            </div>
+              <div className="space-y-2">
+                <Label htmlFor="email" className="text-zinc-400">
+                  Email
+                </Label>
+                <div className="relative">
+                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <Mail className="h-4 w-4 text-zinc-500" />
+                  </div>
+                  <Input
+                    id="email"
+                    name="email"
+                    type="email"
+                    placeholder="you@example.com"
+                    value={formData.email}
+                    onChange={handleInputChange}
+                    required
+                    className="pl-10 bg-zinc-900 border-zinc-800 text-zinc-100 placeholder:text-zinc-500 
+                             focus-visible:ring-blue-400/20 focus-visible:border-blue-400/20 focus-visible:ring-offset-0"
+                  />
+                </div>
+                {validationErrors.email && (
+                  <p className="text-sm text-red-400">{validationErrors.email}</p>
+                )}
+              </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="confirmPassword">Confirm Password</Label>
-              <Input
-                id="confirmPassword"
-                name="confirmPassword"
-                type="password"
-                value={formData.confirmPassword}
-                onChange={handleInputChange}
-                required
-              />
-              {validationErrors.confirmPassword && (
-                <p className="text-sm text-red-500">{validationErrors.confirmPassword}</p>
-              )}
-            </div>
+              <div className="space-y-2">
+                <Label htmlFor="companyName" className="text-zinc-400">
+                  Company Name (Optional)
+                </Label>
+                <div className="relative">
+                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <Building2 className="h-4 w-4 text-zinc-500" />
+                  </div>
+                  <Input
+                    id="companyName"
+                    name="companyName"
+                    placeholder="Acme Corp"
+                    value={formData.companyName}
+                    onChange={handleInputChange}
+                    className="pl-10 bg-zinc-900 border-zinc-800 text-zinc-100 placeholder:text-zinc-500 
+                             focus-visible:ring-blue-400/20 focus-visible:border-blue-400/20 focus-visible:ring-offset-0"
+                  />
+                </div>
+              </div>
 
-            <div className="flex items-center space-x-2">
-              <Checkbox
-                id="terms"
-                checked={agreedToTerms}
-                onCheckedChange={(checked) => setAgreedToTerms(checked as boolean)}
-              />
-              <Label htmlFor="terms" className="text-sm">
-                I agree to the{" "}
-                <a href="/terms" className="text-primary hover:underline">
-                  terms and conditions
+              <div className="space-y-2">
+                <Label htmlFor="password" className="text-zinc-400">
+                  Password
+                </Label>
+                <div className="relative">
+                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <Lock className="h-4 w-4 text-zinc-500" />
+                  </div>
+                  <Input
+                    id="password"
+                    name="password"
+                    type="password"
+                    value={formData.password}
+                    onChange={handleInputChange}
+                    required
+                    className="pl-10 bg-zinc-900 border-zinc-800 text-zinc-100 placeholder:text-zinc-500 
+                             focus-visible:ring-blue-400/20 focus-visible:border-blue-400/20 focus-visible:ring-offset-0"
+                  />
+                </div>
+                {validationErrors.password ? (
+                  <p className="text-sm text-red-400">{validationErrors.password}</p>
+                ) : (
+                  <p className="text-xs text-zinc-500">
+                    Must be at least 8 characters with one uppercase letter and one number
+                  </p>
+                )}
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="confirmPassword" className="text-zinc-400">
+                  Confirm Password
+                </Label>
+                <div className="relative">
+                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <Lock className="h-4 w-4 text-zinc-500" />
+                  </div>
+                  <Input
+                    id="confirmPassword"
+                    name="confirmPassword"
+                    type="password"
+                    value={formData.confirmPassword}
+                    onChange={handleInputChange}
+                    required
+                    className="pl-10 bg-zinc-900 border-zinc-800 text-zinc-100 placeholder:text-zinc-500 
+                             focus-visible:ring-blue-400/20 focus-visible:border-blue-400/20 focus-visible:ring-offset-0"
+                  />
+                </div>
+                {validationErrors.confirmPassword && (
+                  <p className="text-sm text-red-400">{validationErrors.confirmPassword}</p>
+                )}
+              </div>
+
+              <div className="flex items-center space-x-2">
+                <Checkbox
+                  id="terms"
+                  checked={agreedToTerms}
+                  onCheckedChange={(checked) => setAgreedToTerms(checked as boolean)}
+                  className="border-zinc-700 data-[state=checked]:bg-blue-400 data-[state=checked]:border-blue-400"
+                />
+                <Label htmlFor="terms" className="text-sm text-zinc-400">
+                  I agree to the{" "}
+                  <a href="/terms" className="text-blue-400 hover:text-blue-300 transition-colors">
+                    terms and conditions
+                  </a>
+                </Label>
+              </div>
+            </CardContent>
+
+            <CardFooter className="flex flex-col space-y-4">
+              <Button
+                type="submit"
+                disabled={loading || !agreedToTerms}
+                className="w-full bg-blue-500/10 border border-blue-500/20 text-blue-400 
+                         hover:bg-blue-500/20 hover:text-blue-300 transition-all duration-200
+                         disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {loading ? (
+                  <div className="flex items-center justify-center gap-2">
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                    <span>Creating Account...</span>
+                  </div>
+                ) : (
+                  <div className="flex items-center justify-center gap-2">
+                    <UserPlus className="h-4 w-4" />
+                    <span>Create Account</span>
+                  </div>
+                )}
+              </Button>
+
+              <div className="text-sm text-center text-zinc-500">
+                Already have an account?{" "}
+                <a href="/login" className="text-blue-400 hover:text-blue-300 transition-colors">
+                  Sign in
                 </a>
-              </Label>
-            </div>
-          </CardContent>
-
-          <CardFooter className="flex flex-col space-y-4">
-            <Button type="submit" className="w-full" disabled={loading || !agreedToTerms}>
-              {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-              Create Account
-            </Button>
-            <div className="text-sm text-center text-gray-500">
-              Already have an account?{" "}
-              <a href="/login" className="text-primary hover:underline">
-                Sign in
-              </a>
-            </div>
-          </CardFooter>
-        </form>
-      </Card>
+              </div>
+            </CardFooter>
+          </form>
+        </Card>
+      </div>
     </div>
   );
 };
