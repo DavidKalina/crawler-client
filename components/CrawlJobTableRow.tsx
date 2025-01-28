@@ -16,7 +16,6 @@ interface CrawlJobTableRowProps {
   handleRowClick: (jobId: string) => void;
   onJobDeleted: (jobId: string) => void;
   pagination: PaginationState;
-  selectedStatus: string;
 }
 
 const CrawlJobTableRow: React.FC<CrawlJobTableRowProps> = ({

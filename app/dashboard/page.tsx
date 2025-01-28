@@ -15,7 +15,7 @@ export default async function CrawlJobsPage() {
       .from("web_crawl_jobs")
       .select("*")
       .order("created_at", { ascending: false })
-      .range(0, 4),
+      .range(0, 6),
   ]);
 
   return (

@@ -3,13 +3,6 @@
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import {
   Table,
   TableBody,
   TableCell,
@@ -17,13 +10,12 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { statusOptions } from "@/constants/statusOptions";
+import { useToast } from "@/hooks/use-toast";
 import { WebCrawlJob } from "@/types/jobTypes";
+import { createClient } from "@/utils/supabase/client";
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
 import CrawlJobTableRow from "./CrawlJobTableRow";
-import { useToast } from "@/hooks/use-toast";
-import { createClient } from "@/utils/supabase/client";
 
 // TODO ADD SUBSCRIPTION TO LISTEN TO NEW CRAWL JOBS (ONLY ON PAGE 1!)
 
@@ -45,12 +37,11 @@ const CrawlJobsTable = ({
   const [jobs, setJobs] = useState<WebCrawlJob[]>(initialJobs);
   const [error, setError] = useState<string>("");
   const [loading, setLoading] = useState(false);
-  const [selectedStatus, setSelectedStatus] = useState<string>("all");
   const [pagination, setPagination] = useState<PaginationState>({
     page: 1,
-    pageSize: 5,
+    pageSize: 6,
     total: initialTotal,
-    totalPages: Math.ceil(initialTotal / 5),
+    totalPages: Math.ceil(initialTotal / 6),
   });
 
   const { toast } = useToast();
@@ -98,7 +89,7 @@ const CrawlJobsTable = ({
         async () => {
           // If we're on page 1, fetch the latest jobs
           if (pagination.page === 1) {
-            await fetchJobs(1, selectedStatus);
+            await fetchJobs(1, "all");
           } else {
             // If we're not on page 1, show a toast notification
             toast({
@@ -114,7 +105,7 @@ const CrawlJobsTable = ({
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [fetchJobs, pagination.page, selectedStatus, supabase, toast]);
+  }, [fetchJobs, pagination.page, supabase, toast]);
 
   // Use a ref to track if we're currently paginating
   const isPaginating = useRef(false);
@@ -122,16 +113,8 @@ const CrawlJobsTable = ({
   const handlePageChange = useCallback(
     async (newPage: number) => {
       isPaginating.current = true;
-      await fetchJobs(newPage, selectedStatus);
+      await fetchJobs(newPage, "all");
       isPaginating.current = false;
-    },
-    [fetchJobs, selectedStatus]
-  );
-
-  const handleStatusChange = useCallback(
-    (newStatus: string) => {
-      setSelectedStatus(newStatus);
-      fetchJobs(1, newStatus);
     },
     [fetchJobs]
   );
@@ -158,7 +141,7 @@ const CrawlJobsTable = ({
         // If we have fewer than pageSize items after deletion and we're not on the last page,
         // fetch the current page again to get more items
         if (newJobs.length < pagination.pageSize && pagination.page < pagination.totalPages) {
-          fetchJobs(pagination.page, selectedStatus);
+          fetchJobs(pagination.page, "all");
           return prev; // Return prev since we're going to get new data anyway
         }
 
@@ -175,14 +158,7 @@ const CrawlJobsTable = ({
         };
       });
     },
-    [
-      handlePageChange,
-      pagination.page,
-      pagination.pageSize,
-      pagination.totalPages,
-      fetchJobs,
-      selectedStatus,
-    ]
+    [handlePageChange, pagination.page, pagination.pageSize, pagination.totalPages, fetchJobs]
   );
 
   return (
@@ -192,27 +168,6 @@ const CrawlJobsTable = ({
           <AlertDescription>{error}</AlertDescription>
         </Alert>
       )}
-
-      <div className="flex justify-between items-center">
-        <div className="w-[200px]">
-          <Select value={selectedStatus} onValueChange={handleStatusChange}>
-            <SelectTrigger className="bg-zinc-900 border-zinc-800 text-zinc-300 hover:bg-zinc-800/50">
-              <SelectValue placeholder="Filter by status" />
-            </SelectTrigger>
-            <SelectContent className="bg-zinc-900 border-zinc-800">
-              {statusOptions.map((option) => (
-                <SelectItem
-                  key={option.value}
-                  value={option.value}
-                  className="text-zinc-300 hover:bg-zinc-800 focus:bg-zinc-800 focus:text-white"
-                >
-                  {option.label}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
-      </div>
 
       <div className="rounded-lg border border-zinc-800 bg-zinc-900 overflow-hidden">
         <Table>
@@ -241,7 +196,6 @@ const CrawlJobsTable = ({
                 handleRowClick={handleRowClick}
                 onJobDeleted={handleJobDeleted}
                 pagination={pagination}
-                selectedStatus={selectedStatus}
               />
             ))}
             {jobs.length === 0 && (
