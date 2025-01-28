@@ -186,7 +186,7 @@ const CrawlJobsTable = ({
   );
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-12">
       {error && (
         <Alert variant="destructive" className="bg-red-900/20 border-red-900/50 text-red-400">
           <AlertDescription>{error}</AlertDescription>
