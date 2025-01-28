@@ -1,5 +1,5 @@
 import { WebCrawlJob } from "@/types/jobTypes";
-import { Circle, CheckCircle2, XCircle, Pause, StopCircle, Activity } from "lucide-react";
+import { Circle, CheckCircle2, XCircle, Pause, StopCircle, Cog } from "lucide-react";
 import React from "react";
 
 // Status color utility with more sophisticated colors
@@ -10,7 +10,7 @@ export const getStatusColor = (status: WebCrawlJob["status"]) => {
         bg: "bg-blue-500/10",
         border: "border-blue-500/20",
         text: "text-blue-400",
-        icon: <Activity className="w-3.5 h-3.5 animate-pulse" />,
+        icon: <Cog className="w-3.5 h-3.5 animate-spin" />,
       };
     case "completed":
       return {
@@ -52,7 +52,7 @@ export const getStatusColor = (status: WebCrawlJob["status"]) => {
         bg: "bg-zinc-500/10",
         border: "border-zinc-500/20",
         text: "text-zinc-400",
-        icon: <Circle className="w-3.5 h-3.5" />,
+        icon: <Circle className="w-3.5 h-3.5 animate-pulse" />,
       };
   }
 };
