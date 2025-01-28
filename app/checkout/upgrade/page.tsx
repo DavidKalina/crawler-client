@@ -110,7 +110,7 @@ export default function QuotaUpgradePage() {
     setLoading(true);
     setError("");
     try {
-      const response = await fetch("/api/create-checkout-session", {
+      const response = await fetch("http://localhost:5000/api/create-checkout-session", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ package: pkg }),
@@ -119,7 +119,7 @@ export default function QuotaUpgradePage() {
       if (!response.ok) throw new Error("Failed to create checkout session");
 
       const { sessionUrl } = await response.json();
-      router.push(sessionUrl);
+      window.open(sessionUrl, "_blank");
     } catch {
       setError("Failed to initiate purchase. Please try again.");
       setLoading(false);
