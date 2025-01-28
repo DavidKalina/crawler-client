@@ -20,8 +20,10 @@ import {
 import { statusOptions } from "@/constants/statusOptions";
 import { WebCrawlJob } from "@/types/jobTypes";
 import { useRouter } from "next/navigation";
-import { useCallback, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import CrawlJobTableRow from "./CrawlJobTableRow";
+import { useToast } from "@/hooks/use-toast";
+import { createClient } from "@/utils/supabase/client";
 
 // TODO ADD SUBSCRIPTION TO LISTEN TO NEW CRAWL JOBS (ONLY ON PAGE 1!)
 
@@ -50,6 +52,42 @@ const CrawlJobsTable = ({
     total: initialTotal,
     totalPages: Math.ceil(initialTotal / 5),
   });
+
+  const { toast } = useToast();
+
+  const supabase = createClient();
+
+  // Add useEffect for new job insertions
+  useEffect(() => {
+    const channel = supabase
+      .channel("new_jobs")
+      .on<WebCrawlJob>(
+        "postgres_changes",
+        {
+          event: "INSERT",
+          schema: "public",
+          table: "web_crawl_jobs",
+        },
+        async () => {
+          // If we're on page 1, fetch the latest jobs
+          if (pagination.page === 1) {
+            await fetchJobs(1, selectedStatus);
+          } else {
+            // If we're not on page 1, show a toast notification
+            toast({
+              title: "New Job Created",
+              description: "Switch to the first page to see new jobs",
+              variant: "success",
+            });
+          }
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [pagination.page, selectedStatus, supabase, toast]);
 
   // Use a ref to track if we're currently paginating
   const isPaginating = useRef(false);
