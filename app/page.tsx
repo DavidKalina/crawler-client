@@ -33,7 +33,6 @@ const CrawlJobsPage = () => {
 
         if (jobsError) throw jobsError;
 
-        console.log(jobs[0]);
         setData({
           jobs: jobs || [],
           total: count || 0,
