@@ -1,28 +1,79 @@
+"use client";
+
 import { WebCrawlJob } from "@/types/jobTypes";
 import { format } from "date-fns";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { PaginationState } from "./CrawlJobTable";
 import DeleteCrawlJobButton from "./DeleteCrawlJob";
 import DownloadCrawledPages from "./DownloadCrawledPages";
 import { StatusIndicator } from "./StatusIndicator";
 import StopCrawlButton from "./StopCrawlButton";
 import { TableCell, TableRow } from "./ui/table";
+import { createClient } from "@/utils/supabase/client";
 
 interface CrawlJobTableRowProps {
-  job: WebCrawlJob;
+  initialJob: WebCrawlJob;
   handleRowClick: (jobId: string) => void;
-  fetchJobs: (page: number, status: string) => Promise<void>;
+  onJobDeleted: (jobId: string) => void;
   pagination: PaginationState;
   selectedStatus: string;
 }
 
 const CrawlJobTableRow: React.FC<CrawlJobTableRowProps> = ({
   handleRowClick,
-  job,
-  fetchJobs,
-  pagination,
-  selectedStatus,
+  initialJob,
+  onJobDeleted,
 }) => {
+  const [job, setJob] = useState<WebCrawlJob>(initialJob);
+  const supabase = createClient();
+
+  useEffect(() => {
+    const channel = supabase
+      .channel(`job-${job.id}`)
+      .on<{
+        id: string;
+        start_url: string;
+        max_depth: number;
+        status: string;
+        created_at: string;
+        updated_at: string;
+        completed_at: string | null;
+        user_id: string;
+      }>(
+        "postgres_changes",
+        {
+          event: "*",
+          schema: "public",
+          table: "web_crawl_jobs",
+          filter: `id=eq.${job.id}`,
+        },
+        (payload) => {
+          if (payload.eventType === "DELETE") {
+            onJobDeleted(job.id);
+          } else if (payload.eventType === "UPDATE") {
+            const updatedJob: WebCrawlJob = {
+              id: payload.new.id,
+              start_url: payload.new.start_url,
+              max_depth: payload.new.max_depth,
+              // eslint-disable-next-line @typescript-eslint/no-explicit-any
+              status: payload.new.status as any,
+              created_at: payload.new.created_at,
+              updated_at: payload.new.updated_at,
+              completed_at: payload.new.completed_at ?? undefined,
+              user_id: payload.new.user_id,
+              metadata: {},
+            };
+            setJob(updatedJob);
+          }
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [job.id, onJobDeleted, supabase]);
+
   return (
     <TableRow
       key={job.id}
@@ -52,20 +103,8 @@ const CrawlJobTableRow: React.FC<CrawlJobTableRowProps> = ({
       <TableCell className="p-4">
         <div className="flex items-center gap-3 opacity-80 group-hover:opacity-100 transition-opacity">
           <DownloadCrawledPages crawlJobId={job.id} />
-          <StopCrawlButton
-            crawlJobId={job.id}
-            status={job.status}
-            onStop={() => {
-              fetchJobs(pagination.page, selectedStatus);
-            }}
-          />
-          <DeleteCrawlJobButton
-            crawlJobId={job.id}
-            status={job.status}
-            onDelete={() => {
-              fetchJobs(pagination.page, selectedStatus);
-            }}
-          />
+          <StopCrawlButton crawlJobId={job.id} status={job.status} />
+          <DeleteCrawlJobButton crawlJobId={job.id} status={job.status} />
         </div>
       </TableCell>
     </TableRow>

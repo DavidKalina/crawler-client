@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Slider } from "@/components/ui/slider";
 import { useToast } from "@/hooks/use-toast";
 import { Globe, Layers, LinkIcon, Loader2 } from "lucide-react";
+import { useRouter } from "next/navigation";
 import { useCallback, useState } from "react";
 
 const CrawlInitiator = () => {
@@ -15,6 +16,7 @@ const CrawlInitiator = () => {
   const [allowedDomains, setAllowedDomains] = useState("books.toscrape.com");
   const [isLoading, setIsLoading] = useState(false);
   const [isUrlValid, setIsUrlValid] = useState(true);
+  const router = useRouter();
   const { toast } = useToast();
 
   const validateUrl = useCallback((input: string) => {
@@ -58,6 +60,7 @@ const CrawlInitiator = () => {
         title: "Success",
         description: "Crawl job queued successfully",
       });
+      router.refresh();
     } catch {
       toast({
         title: "Error",
@@ -67,7 +70,7 @@ const CrawlInitiator = () => {
     } finally {
       setIsLoading(false);
     }
-  }, [allowedDomains, depth, toast, url, validateUrl]);
+  }, [allowedDomains, depth, router, toast, url, validateUrl]);
 
   return (
     <Card className="bg-zinc-900 border-zinc-800">

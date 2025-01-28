@@ -19,10 +19,11 @@ import {
 } from "@/components/ui/table";
 import { statusOptions } from "@/constants/statusOptions";
 import { WebCrawlJob } from "@/types/jobTypes";
-import { createClient } from "@/utils/supabase/client";
 import { useRouter } from "next/navigation";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useRef, useState } from "react";
 import CrawlJobTableRow from "./CrawlJobTableRow";
+
+// TODO ADD SUBSCRIPTION TO LISTEN TO NEW CRAWL JOBS (ONLY ON PAGE 1!)
 
 export interface PaginationState {
   page: number;
@@ -50,7 +51,8 @@ const CrawlJobsTable = ({
     totalPages: Math.ceil(initialTotal / 5),
   });
 
-  const supabase = createClient();
+  // Use a ref to track if we're currently paginating
+  const isPaginating = useRef(false);
 
   const fetchJobs = useCallback(
     async (page: number, status: string) => {
@@ -79,30 +81,11 @@ const CrawlJobsTable = ({
     [pagination.pageSize]
   );
 
-  useEffect(() => {
-    const channel = supabase
-      .channel("web_crawl_jobs_changes")
-      .on(
-        "postgres_changes",
-        {
-          event: "*",
-          schema: "public",
-          table: "web_crawl_jobs",
-        },
-        async () => {
-          await fetchJobs(pagination.page, selectedStatus);
-        }
-      )
-      .subscribe();
-
-    return () => {
-      supabase.removeChannel(channel);
-    };
-  }, [fetchJobs, pagination.page, selectedStatus, supabase]);
-
   const handlePageChange = useCallback(
-    (newPage: number) => {
-      fetchJobs(newPage, selectedStatus);
+    async (newPage: number) => {
+      isPaginating.current = true;
+      await fetchJobs(newPage, selectedStatus);
+      isPaginating.current = false;
     },
     [fetchJobs, selectedStatus]
   );
@@ -120,6 +103,32 @@ const CrawlJobsTable = ({
       router.push(`/job/${jobId}`);
     },
     [router]
+  );
+
+  const handleJobDeleted = useCallback(
+    (jobId: string) => {
+      setJobs((prev) => {
+        const newJobs = prev.filter((job) => job.id !== jobId);
+        // If we've removed the last item on the current page and we're not on the first page,
+        // fetch the previous page
+        if (newJobs.length === 0 && pagination.page > 1) {
+          handlePageChange(pagination.page - 1);
+          return prev; // Return prev since we're going to get new data anyway
+        }
+        return newJobs;
+      });
+
+      // Update total count and total pages
+      setPagination((prev) => {
+        const newTotal = prev.total - 1;
+        return {
+          ...prev,
+          total: newTotal,
+          totalPages: Math.ceil(newTotal / prev.pageSize),
+        };
+      });
+    },
+    [handlePageChange, pagination.page]
   );
 
   return (
@@ -174,9 +183,9 @@ const CrawlJobsTable = ({
             {jobs.map((job) => (
               <CrawlJobTableRow
                 key={job.id}
-                job={job}
+                initialJob={job}
                 handleRowClick={handleRowClick}
-                fetchJobs={fetchJobs}
+                onJobDeleted={handleJobDeleted}
                 pagination={pagination}
                 selectedStatus={selectedStatus}
               />
@@ -211,7 +220,7 @@ const CrawlJobsTable = ({
               variant="outline"
               onClick={() => handlePageChange(pagination.page + 1)}
               disabled={pagination.page === pagination.totalPages || loading}
-              className="bg-transparent border-green-800 text-green-400 hover:bg-zinc-800 hover:text-white disabled:opacity-50 disabled:hover:bg-transparent cursor-grab"
+              className="bg-transparent border-green-800 text-green-400 hover:bg-zinc-800 hover:text-white disabled:opacity-50 disabled:hover:bg-transparent"
             >
               Next
             </Button>
