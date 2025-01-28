@@ -9,7 +9,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { createClient } from "@/utils/supabase/client";
-import { Diamond, LogOut, Menu, Settings, UserCircle, X } from "lucide-react";
+import { Box, Diamond, LogOut, Menu, Settings, UserCircle, X } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
@@ -26,6 +26,7 @@ const Navbar = () => {
 
   const navigationItems = [
     { name: "Settings", href: "/settings", icon: <Settings className="h-4 w-4" /> },
+    { name: "Upgrade", href: "/checkout/upgrade", icon: <Box className="h-4 w-4" /> },
   ];
 
   return (
