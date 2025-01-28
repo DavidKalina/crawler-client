@@ -147,14 +147,25 @@ const LoginPage = () => {
                 )}
               </Button>
 
-              <div className="text-sm text-center text-zinc-500">
-                Don&apos;t have an account?{" "}
-                <a
-                  href="/auth/register"
-                  className="text-blue-400 hover:text-blue-300 transition-colors"
-                >
-                  Sign up
-                </a>
+              <div className="flex gap-4 items-center justify-between">
+                <div className="text-sm text-center text-zinc-500">
+                  Don&apos;t have an account?{" "}
+                  <a
+                    href="/auth/register"
+                    className="text-blue-400 hover:text-blue-300 transition-colors"
+                  >
+                    Sign up
+                  </a>
+                </div>
+                <div className="text-sm text-center text-zinc-500">
+                  Forgot Password?{" "}
+                  <a
+                    href="/auth/forgot-password"
+                    className="text-blue-400 hover:text-blue-300 transition-colors"
+                  >
+                    Sign up
+                  </a>
+                </div>
               </div>
             </CardFooter>
           </form>

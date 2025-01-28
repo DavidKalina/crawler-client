@@ -12,7 +12,6 @@ export default function VerifyPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
 
-  // Get all URL parameters that Supabase might send
   const email = searchParams.get("email");
   const errorCode = searchParams.get("error_code");
   const errorDescription = searchParams.get("error_description");
@@ -24,15 +23,13 @@ export default function VerifyPage() {
   >(null);
   const [error, setError] = useState<string | null>(null);
   const [resending, setResending] = useState(false);
-
   const [resendSuccess, setResendSuccess] = useState(false);
   const [resendCount, setResendCount] = useState(0);
 
   const supabase = createClient();
 
-  // Handle verification
+  // Verification logic remains the same...
   useEffect(() => {
-    // Check for error parameters first
     if (searchParams.get("error") || searchParams.get("error_code")) {
       setVerificationStatus("error");
       const errorDesc = searchParams.get("error_description");
@@ -42,25 +39,19 @@ export default function VerifyPage() {
       return;
     }
 
-    // If there's a token in the URL, attempt verification
     if (token) {
       setVerificationStatus("loading");
 
       const verifyEmailWithSupabase = async () => {
         try {
-          const { data, error } = await supabase.auth.verifyOtp({
+          const { error } = await supabase.auth.verifyOtp({
             email: email!,
             token: token,
             type: "signup",
           });
 
-          console.log("DATA", data, "ERROR", error);
-
           if (error) throw error;
-
           setVerificationStatus("success");
-
-          // Redirect to dashboard after successful verification
           setTimeout(() => {
             router.push("/dashboard");
           }, 2000);
@@ -77,7 +68,7 @@ export default function VerifyPage() {
 
       verifyEmailWithSupabase();
     }
-  }, [type, token, email, errorCode, errorDescription, router, supabase.auth]);
+  }, [type, token, email, errorCode, errorDescription, router, supabase.auth, searchParams]);
 
   const handleResendEmail = async () => {
     if (!email || resendCount >= 3) return;
@@ -113,25 +104,31 @@ export default function VerifyPage() {
   // Error state view
   if (verificationStatus === "error") {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50 p-4">
-        <Card className="w-full max-w-md">
+      <div className="min-h-screen flex items-center justify-center bg-zinc-950 p-4">
+        <Card className="w-full max-w-md bg-zinc-900 border-zinc-800">
           <CardHeader>
             <div className="flex justify-center mb-4">
-              <AlertTriangle className="h-12 w-12 text-destructive" />
+              <div className="p-2 rounded-full bg-red-500/10">
+                <AlertTriangle className="h-8 w-8 text-red-400" />
+              </div>
             </div>
-            <CardTitle className="text-2xl font-bold text-center">Verification Failed</CardTitle>
-            <CardDescription className="text-center text-destructive">{error}</CardDescription>
+            <CardTitle className="text-xl font-medium text-zinc-100 text-center">
+              Verification Failed
+            </CardTitle>
+            <CardDescription className="text-red-400 text-center">{error}</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             {email && (
               <div className="text-center space-y-4">
-                <p className="text-sm text-gray-600">
-                  Would you like us to send another verification email to <strong>{email}</strong>?
+                <p className="text-sm text-zinc-400">
+                  Would you like us to send another verification email to{" "}
+                  <strong className="text-zinc-300">{email}</strong>?
                 </p>
                 <Button
-                  variant="outline"
                   onClick={handleResendEmail}
                   disabled={resending || resendCount >= 3}
+                  className="bg-blue-500/10 border border-blue-500/20 text-blue-400 
+                           hover:bg-blue-500/20 hover:text-blue-300 transition-all duration-200"
                 >
                   {resending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                   {resendCount >= 3
@@ -144,7 +141,7 @@ export default function VerifyPage() {
               <Button
                 variant="link"
                 onClick={() => router.push("/login")}
-                className="text-sm text-gray-500"
+                className="text-zinc-400 hover:text-zinc-300"
               >
                 Return to login
               </Button>
@@ -155,18 +152,20 @@ export default function VerifyPage() {
     );
   }
 
-  // Verification in progress
+  // Loading state
   if (verificationStatus === "loading") {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50 p-4">
-        <Card className="w-full max-w-md">
+      <div className="min-h-screen flex items-center justify-center bg-zinc-950 p-4">
+        <Card className="w-full max-w-md bg-zinc-900 border-zinc-800">
           <CardHeader>
-            <CardTitle className="text-2xl font-bold text-center">Email Verification</CardTitle>
+            <CardTitle className="text-xl font-medium text-zinc-100 text-center">
+              Email Verification
+            </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="flex flex-col items-center space-y-4">
-              <Loader2 className="h-8 w-8 animate-spin text-primary" />
-              <p className="text-center text-sm text-gray-600">Verifying your email...</p>
+              <Loader2 className="h-8 w-8 animate-spin text-blue-400" />
+              <p className="text-center text-sm text-zinc-400">Verifying your email...</p>
             </div>
           </CardContent>
         </Card>
@@ -177,13 +176,15 @@ export default function VerifyPage() {
   // Success state
   if (verificationStatus === "success") {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50 p-4">
-        <Card className="w-full max-w-md">
+      <div className="min-h-screen flex items-center justify-center bg-zinc-950 p-4">
+        <Card className="w-full max-w-md bg-zinc-900 border-zinc-800">
           <CardHeader>
-            <CardTitle className="text-2xl font-bold text-center">Email Verified</CardTitle>
+            <CardTitle className="text-xl font-medium text-zinc-100 text-center">
+              Email Verified
+            </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
-            <Alert>
+            <Alert className="bg-blue-500/10 border-blue-500/20 text-blue-400">
               <AlertDescription>
                 Email verified successfully! Redirecting to dashboard...
               </AlertDescription>
@@ -196,38 +197,38 @@ export default function VerifyPage() {
 
   // Default "Check your email" view
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 p-4">
-      <Card className="w-full max-w-md">
-        <CardHeader>
-          <CardTitle className="text-2xl font-bold text-center">Check Your Email</CardTitle>
-          <CardDescription className="text-center">
-            We've sent you a verification link
+    <div className="min-h-screen flex items-center justify-center bg-zinc-950 p-4">
+      <Card className="w-full max-w-md bg-zinc-900 border-zinc-800">
+        <CardHeader className="space-y-2 text-center">
+          <div className="mx-auto p-2 rounded-full bg-blue-500/10 w-fit">
+            <Mail className="h-6 w-6 text-blue-400" />
+          </div>
+          <CardTitle className="text-xl font-medium text-zinc-100">Check Your Email</CardTitle>
+          <CardDescription className="text-zinc-400">
+            We&apos;ve sent you a verification link
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
-          <div className="flex justify-center">
-            <Mail className="h-12 w-12 text-primary" />
-          </div>
-
           {email && (
-            <p className="text-center text-sm text-gray-600">
-              We've sent a verification email to <strong>{email}</strong>
+            <p className="text-center text-sm text-zinc-400">
+              We&apos;ve sent a verification email to{" "}
+              <strong className="text-zinc-300">{email}</strong>
             </p>
           )}
 
-          <p className="text-center text-sm text-gray-600">
-            Click the link in the email to verify your account. If you don't see the email, check
-            your spam folder.
+          <p className="text-center text-sm text-zinc-400">
+            Click the link in the email to verify your account. If you don&apos;t see the email,
+            check your spam folder.
           </p>
 
           {error && (
-            <Alert variant="destructive">
+            <Alert className="bg-red-500/10 border-red-500/20 text-red-400">
               <AlertDescription>{error}</AlertDescription>
             </Alert>
           )}
 
           {resendSuccess && (
-            <Alert>
+            <Alert className="bg-blue-500/10 border-blue-500/20 text-blue-400">
               <AlertDescription>
                 Verification email has been resent! Please check your inbox.
               </AlertDescription>
@@ -236,16 +237,17 @@ export default function VerifyPage() {
 
           <div className="text-center">
             <Button
-              variant="outline"
               onClick={handleResendEmail}
               disabled={resending || !email || resendCount >= 3}
-              className="mt-4"
+              className="mt-4 bg-blue-500/10 border border-blue-500/20 text-blue-400 
+                       hover:bg-blue-500/20 hover:text-blue-300 transition-all duration-200
+                       disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {resending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
               {resendCount >= 3 ? "Maximum resend attempts reached" : "Resend verification email"}
             </Button>
             {resendCount > 0 && resendCount < 3 && (
-              <p className="text-sm text-gray-500 mt-2">
+              <p className="text-sm text-zinc-500 mt-2">
                 Resend attempts remaining: {3 - resendCount}
               </p>
             )}
