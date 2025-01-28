@@ -52,7 +52,7 @@ const LoginPage = () => {
       });
 
       if (error) throw error;
-      router.push("/");
+      router.push("/dashboard");
     } catch (err) {
       setError(err instanceof Error ? err.message : "An error occurred during login");
     } finally {

@@ -1,54 +1,21 @@
 import { ActiveCrawlsStats } from "@/components/ActiveCrawlStats";
 import { CompletedJobsStats } from "@/components/CompletedJobStats";
 import { FailedJobsStats } from "@/components/FailedJobStats";
-import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Diamond, Loader2 } from "lucide-react";
 import React from "react";
 
 interface DashboardLayoutProps {
   children: React.ReactNode;
-  isLoading?: boolean;
-  error?: Error;
+
   quotaUsage?: number;
   crawlJobId?: string;
 }
 
 const DashboardLayout = ({
   children,
-  isLoading,
-  error,
+
   // quotaUsage = 0,
   crawlJobId,
 }: DashboardLayoutProps) => {
-  if (isLoading) {
-    return (
-      <div className="min-h-screen bg-zinc-950 flex flex-col items-center justify-center space-y-6">
-        <div className="relative">
-          <div className="absolute inset-0 bg-blue-500/20 blur-xl rounded-full animate-pulse" />
-          <div className="relative p-4 rounded-lg bg-zinc-900 border border-zinc-800">
-            <Diamond className="h-8 w-8 text-blue-400" />
-          </div>
-        </div>
-        <div className="flex items-center space-x-3 px-4 py-3 rounded-lg bg-zinc-900 border border-zinc-800">
-          <Loader2 className="h-5 w-5 text-blue-400 animate-spin" />
-          <p className="text-sm text-zinc-400">Loading dashboard...</p>
-        </div>
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="min-h-screen bg-zinc-950 p-8">
-        <div className="max-w-8xl mx-auto">
-          <Alert variant="destructive" className="bg-red-500/10 border-red-500/20 text-red-400">
-            <AlertDescription>{error.message || "Error loading dashboard"}</AlertDescription>
-          </Alert>
-        </div>
-      </div>
-    );
-  }
-
   return (
     <div className="min-h-screen bg-zinc-950">
       <div className="py-8 px-4 sm:px-6 lg:px-8">

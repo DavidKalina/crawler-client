@@ -60,7 +60,10 @@ export default function SuccessPage() {
         </CardHeader>
         <CardContent className="space-y-4">
           <p className="text-zinc-300 text-center">Your pages have been added to your account.</p>
-          <Button onClick={() => router.push("/")} className="w-full bg-blue-600 hover:bg-blue-700">
+          <Button
+            onClick={() => router.push("/dashboard")}
+            className="w-full bg-blue-600 hover:bg-blue-700"
+          >
             Return to Dashboard
           </Button>
         </CardContent>

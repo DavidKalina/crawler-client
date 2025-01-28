@@ -1,3 +1,5 @@
+"use client";
+
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import {
@@ -115,7 +117,7 @@ const CrawlJobsTable = ({
 
   const handleRowClick = useCallback(
     (jobId: string) => {
-      router.push(`/dashboard/${jobId}`);
+      router.push(`/job/${jobId}`);
     },
     [router]
   );

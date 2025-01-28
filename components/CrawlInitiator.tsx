@@ -1,3 +1,5 @@
+"use client";
+
 import { startCrawl } from "@/app/actions/initiateCrawl";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";

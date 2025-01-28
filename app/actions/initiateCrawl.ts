@@ -56,7 +56,7 @@ export async function startCrawl(formData: {
     }
 
     // Revalidate the dashboard page
-    revalidatePath("/");
+    revalidatePath("/dashboard");
 
     return { success: true, jobId: data.id };
   } catch (error) {
