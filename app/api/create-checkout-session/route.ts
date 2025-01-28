@@ -15,6 +15,10 @@ export async function POST(req: Request) {
     const body = await req.json();
     const { package: pkg } = body;
 
+    if (!pkg || !pkg.pages || !pkg.price || !pkg.id) {
+      return NextResponse.json({ error: "Invalid package data" }, { status: 400 });
+    }
+
     // Get the current user
     const supabase = await createClient();
     const {
@@ -43,6 +47,7 @@ export async function POST(req: Request) {
         },
       ],
       metadata: {
+        page_count: pkg.pages.toString(), // Store as string to avoid potential number precision issues
         pages: pkg.pages,
         user_id: session.user.id,
         package_id: pkg.id,

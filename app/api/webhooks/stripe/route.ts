@@ -15,8 +15,6 @@ export async function POST(req: Request) {
     const stripeHeaders = await headers();
     const signature = stripeHeaders.get("stripe-signature")!;
 
-    console.log("SIGNATURE", signature);
-
     const event = stripe.webhooks.constructEvent(body, signature, webhookSecret);
 
     if (event.type === "checkout.session.completed") {
@@ -40,12 +38,13 @@ export async function POST(req: Request) {
         if (userData) {
           // Parse the number of pages from the product name
           const pagesMatch = expandedSession.line_items?.data[0]?.description?.match(/(\d+)/);
-          const pages = pagesMatch ? parseInt(pagesMatch[1].replace(/,/g, "")) : 0;
+          console.log({ pagesMatch });
+          const pageCount = parseInt(session.metadata?.page_count ?? "0");
 
           // Update user's available pages
           await supabase.rpc("increment_available_pages", {
             user_id: userData.id,
-            page_count: pages,
+            page_count: pageCount,
           });
         }
       }
