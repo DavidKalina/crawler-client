@@ -66,7 +66,7 @@ const DownloadCrawledPages = ({ crawlJobId = null }: { crawlJobId: string | null
       toast({
         title: "Download Successful",
         description: "Crawled Pages Downloaded",
-        variant: "default",
+        variant: "success",
       });
     } catch (error) {
       console.error("Error processing download:", error);
