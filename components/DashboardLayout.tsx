@@ -1,10 +1,9 @@
-import React from "react";
 import { ActiveCrawlsStats } from "@/components/ActiveCrawlStats";
 import { CompletedJobsStats } from "@/components/CompletedJobStats";
 import { FailedJobsStats } from "@/components/FailedJobStats";
-import { StatsCard } from "@/components/StatsCard";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Activity, Diamond, Loader2 } from "lucide-react";
+import { Diamond, Loader2 } from "lucide-react";
+import React from "react";
 
 interface DashboardLayoutProps {
   children: React.ReactNode;
@@ -18,7 +17,7 @@ const DashboardLayout = ({
   children,
   isLoading,
   error,
-  quotaUsage = 0,
+  // quotaUsage = 0,
   crawlJobId,
 }: DashboardLayoutProps) => {
   if (isLoading) {
@@ -68,16 +67,10 @@ const DashboardLayout = ({
 
           {/* Stats Grid with divider */}
           <div className="pb-6 border-b border-zinc-800">
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
               <ActiveCrawlsStats />
               <CompletedJobsStats />
               <FailedJobsStats />
-              <StatsCard
-                title="Quota Usage"
-                value={`${quotaUsage}%`}
-                icon={Activity}
-                description="Of monthly allocation used"
-              />
             </div>
           </div>
 

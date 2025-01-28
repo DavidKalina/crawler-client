@@ -1,9 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
-import { Button } from "@/components/ui/button";
-import { Trash2 } from "lucide-react";
-import { useRouter } from "next/navigation";
+import { deleteCrawlJob } from "@/app/actions/crawlJobs";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -15,8 +12,11 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { createClient } from "@/utils/supabase/client";
+import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
+import { Trash2 } from "lucide-react";
+import { useRouter } from "next/navigation";
+import React, { useState } from "react";
 
 const DeleteCrawlJobButton = ({
   crawlJobId,
@@ -28,7 +28,6 @@ const DeleteCrawlJobButton = ({
   onDelete?: () => void;
 }) => {
   const router = useRouter();
-  const supabase = createClient();
   const [isLoading, setIsLoading] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
   const { toast } = useToast();
@@ -38,10 +37,9 @@ const DeleteCrawlJobButton = ({
     setIsLoading(true);
 
     try {
-      const { error } = await supabase.from("web_crawl_jobs").delete().eq("id", crawlJobId);
-
-      if (error) {
-        throw error;
+      const response = await deleteCrawlJob(crawlJobId);
+      if (response.success) {
+        throw new Error("Error deleting crawl job");
       }
 
       if (onDelete) {

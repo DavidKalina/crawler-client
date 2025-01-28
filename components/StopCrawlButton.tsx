@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Square } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useToast } from "@/hooks/use-toast";
+import { stopCrawlJob } from "@/app/actions/crawlJobs";
 
 const StopCrawlButton = ({
   crawlJobId,
@@ -25,18 +26,12 @@ const StopCrawlButton = ({
     e.stopPropagation(); // Prevent row click when clicking stop button
 
     try {
-      const response = await fetch(`http://localhost:3000/api/queue/stop/${crawlJobId}`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
+      const { success } = await stopCrawlJob(crawlJobId);
 
-      if (!response.ok) {
-        throw new Error("Failed to stop crawl");
+      if (!success) {
+        throw new Error("Error stopping crawl job");
       }
 
-      // Call the optional onStop callback
       if (onStop) {
         onStop();
       }

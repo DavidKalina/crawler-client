@@ -1,5 +1,6 @@
 "use client";
 
+import { getCrawlStats } from "@/app/actions/crawlJobs";
 import { createClient } from "@/utils/supabase/client";
 import { AlertCircle, Clock, Globe2, HardDrive, Hash } from "lucide-react";
 import { JSX, useEffect, useState, useCallback } from "react";
@@ -29,18 +30,16 @@ const CoreStats = ({ crawlJobId }: { crawlJobId: string }) => {
 
   const fetchCrawlStats = useCallback(async () => {
     try {
-      const { data, error } = await supabase.rpc("get_crawl_stats", {
-        job_id: crawlJobId,
-      });
+      const response = await getCrawlStats(crawlJobId);
 
-      if (error) throw error;
+      if (!response.success) throw error;
 
       const newStats = {
-        pagesCrawled: parseInt(data.pagesCrawled || "0"),
-        duration: data.duration,
-        errors: parseInt(data.errors || "0"),
-        totalSize: data.totalSize,
-        avgTokens: data.avgTokens,
+        pagesCrawled: response.data.pagesCrawled || 0,
+        duration: response.data.duration,
+        errors: response.data.errors || 0,
+        totalSize: response.data.totalSize,
+        avgTokens: response.data.avgTokens,
       };
 
       setStats((current) => {
