@@ -57,13 +57,13 @@ const CrawlInitiator = () => {
       setAllowedDomains("");
       toast({
         title: "Success",
-        description: "Crawl job started successfully",
+        description: "Crawl job queued successfully",
         variant: "default",
       });
     } catch {
       toast({
         title: "Error",
-        description: "Failed to start crawl job. Please try again.",
+        description: "Failed to queue crawl job. Please try again.",
         variant: "destructive",
       });
     } finally {

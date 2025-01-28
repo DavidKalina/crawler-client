@@ -29,6 +29,13 @@ export async function GET(request: Request) {
 
     // Get user session (even though middleware checks, double-check for safety)
     const {
+      data: { user },
+    } = await supabase.auth.getUser();
+    if (!user) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const {
       data: { session },
     } = await supabase.auth.getSession();
     if (!session) {
@@ -39,7 +46,7 @@ export async function GET(request: Request) {
     let query = supabase
       .from("web_crawl_jobs")
       .select("*", { count: "exact" })
-      .eq("user_id", session.user.id); // Ensure user only sees their jobs
+      .eq("user_id", user.id); // Ensure user only sees their jobs
 
     // Apply status filter if provided
     if (status && status !== "all") {

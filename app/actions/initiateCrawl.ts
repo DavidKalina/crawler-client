@@ -45,7 +45,7 @@ export async function startCrawl(formData: {
         startUrl: formData.startUrl,
         maxDepth: formData.maxDepth,
         allowedDomains: formData.allowedDomains,
-        userId: session.user.id, // Pass the user ID to your API
+        userId: user.id, // Pass the user ID to your API
       }),
     });
 

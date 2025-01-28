@@ -6,10 +6,19 @@ import { NextResponse } from "next/server";
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
 const supabaseServiceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY!;
 
-export async function DELETE(request: Request) {
+export async function DELETE() {
   try {
     // Get the user's session using the server client
     const supabase = await createServerSupabase();
+    const {
+      data: { user },
+      error: userError,
+    } = await supabase.auth.getUser();
+
+    if (userError || !user) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
     const {
       data: { session },
       error: sessionError,
@@ -18,8 +27,6 @@ export async function DELETE(request: Request) {
     if (sessionError || !session) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
-
-    const userId = session.user.id;
 
     // Create admin client with service role for operations that require elevated privileges
     const adminClient = createClient(supabaseUrl, supabaseServiceRoleKey, {
@@ -32,7 +39,7 @@ export async function DELETE(request: Request) {
     const { error: jobsDeleteError } = await adminClient
       .from("web_crawl_jobs")
       .delete()
-      .eq("user_id", userId);
+      .eq("user_id", user.id);
 
     if (jobsDeleteError) {
       console.error("Error deleting crawl jobs:", jobsDeleteError);
@@ -43,7 +50,7 @@ export async function DELETE(request: Request) {
     const { data: remainingJobs, error: checkJobsError } = await adminClient
       .from("web_crawl_jobs")
       .select("id")
-      .eq("user_id", userId);
+      .eq("user_id", user.id);
 
     if (checkJobsError) {
       console.error("Error checking remaining jobs:", checkJobsError);
@@ -56,14 +63,14 @@ export async function DELETE(request: Request) {
     }
 
     // 3. Delete the user from auth.users (this will cascade to profiles)
-    const { error: deleteUserError } = await adminClient.auth.admin.deleteUser(userId);
+    const { error: deleteUserError } = await adminClient.auth.admin.deleteUser(user.id);
 
     if (deleteUserError) {
       console.error("Error deleting user:", deleteUserError);
       return NextResponse.json({ error: "Failed to delete user account" }, { status: 500 });
     }
 
-    await adminClient.rpc("cleanup_user_data", { user_id: userId });
+    await adminClient.rpc("cleanup_user_data", { user_id: user.id });
 
     return NextResponse.json(
       { message: "Account and all associated data successfully deleted" },
