@@ -57,6 +57,33 @@ const CrawlJobsTable = ({
 
   const supabase = createClient();
 
+  const fetchJobs = useCallback(
+    async (page: number, status: string) => {
+      setLoading(true);
+      try {
+        const response = await fetch(
+          `/api/jobs?page=${page}&pageSize=${pagination.pageSize}&status=${status}`
+        );
+        const data = await response.json();
+
+        if (!response.ok) throw new Error(data.error);
+
+        setJobs(data.data);
+        setPagination({
+          page: data.page,
+          pageSize: data.pageSize,
+          total: data.total,
+          totalPages: data.totalPages,
+        });
+      } catch (err) {
+        setError(err instanceof Error ? err.message : "Failed to fetch jobs");
+      } finally {
+        setLoading(false);
+      }
+    },
+    [pagination.pageSize]
+  );
+
   // Add useEffect for new job insertions
   useEffect(() => {
     const channel = supabase
@@ -87,37 +114,10 @@ const CrawlJobsTable = ({
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [pagination.page, selectedStatus, supabase, toast]);
+  }, [fetchJobs, pagination.page, selectedStatus, supabase, toast]);
 
   // Use a ref to track if we're currently paginating
   const isPaginating = useRef(false);
-
-  const fetchJobs = useCallback(
-    async (page: number, status: string) => {
-      setLoading(true);
-      try {
-        const response = await fetch(
-          `/api/jobs?page=${page}&pageSize=${pagination.pageSize}&status=${status}`
-        );
-        const data = await response.json();
-
-        if (!response.ok) throw new Error(data.error);
-
-        setJobs(data.data);
-        setPagination({
-          page: data.page,
-          pageSize: data.pageSize,
-          total: data.total,
-          totalPages: data.totalPages,
-        });
-      } catch (err) {
-        setError(err instanceof Error ? err.message : "Failed to fetch jobs");
-      } finally {
-        setLoading(false);
-      }
-    },
-    [pagination.pageSize]
-  );
 
   const handlePageChange = useCallback(
     async (newPage: number) => {
@@ -144,15 +144,24 @@ const CrawlJobsTable = ({
   );
 
   const handleJobDeleted = useCallback(
-    (jobId: string) => {
+    async (jobId: string) => {
       setJobs((prev) => {
         const newJobs = prev.filter((job) => job.id !== jobId);
+
         // If we've removed the last item on the current page and we're not on the first page,
         // fetch the previous page
         if (newJobs.length === 0 && pagination.page > 1) {
           handlePageChange(pagination.page - 1);
           return prev; // Return prev since we're going to get new data anyway
         }
+
+        // If we have fewer than pageSize items after deletion and we're not on the last page,
+        // fetch the current page again to get more items
+        if (newJobs.length < pagination.pageSize && pagination.page < pagination.totalPages) {
+          fetchJobs(pagination.page, selectedStatus);
+          return prev; // Return prev since we're going to get new data anyway
+        }
+
         return newJobs;
       });
 
@@ -166,7 +175,14 @@ const CrawlJobsTable = ({
         };
       });
     },
-    [handlePageChange, pagination.page]
+    [
+      handlePageChange,
+      pagination.page,
+      pagination.pageSize,
+      pagination.totalPages,
+      fetchJobs,
+      selectedStatus,
+    ]
   );
 
   return (
