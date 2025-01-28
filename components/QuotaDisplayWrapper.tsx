@@ -90,7 +90,6 @@ const QuotaDisplayWrapper = () => {
       availablePages={quotaInfo.available_pages}
       pagesUsed={quotaInfo.pages_used}
       lifetimePagesPurchased={quotaInfo.lifetime_pages_purchased}
-      onUpgradeClick={() => {}}
     />
   );
 };

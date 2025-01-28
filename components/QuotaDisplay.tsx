@@ -1,20 +1,15 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Database, Package, ChevronRight, History } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import Link from "next/link";
 
 interface QuotaDisplayProps {
   availablePages: number;
   pagesUsed: number;
   lifetimePagesPurchased: number;
-  onUpgradeClick: () => void;
 }
 
-const QuotaDisplay = ({
-  availablePages,
-  pagesUsed,
-  lifetimePagesPurchased,
-  onUpgradeClick,
-}: QuotaDisplayProps) => {
+const QuotaDisplay = ({ availablePages, pagesUsed, lifetimePagesPurchased }: QuotaDisplayProps) => {
   // Show upgrade prompt if less than 25% of lifetime purchased pages are available
   const shouldShowUpgrade = availablePages < lifetimePagesPurchased * 0.25;
 
@@ -103,17 +98,18 @@ const QuotaDisplay = ({
 
         {shouldShowUpgrade && (
           <div className="pt-2 space-y-2">
-            <Button
-              onClick={onUpgradeClick}
-              className="w-full bg-blue-500/10 border border-blue-500/20 text-blue-400 
+            <Link href={`/checkout/upgrade`}>
+              <Button
+                className="w-full bg-blue-500/10 border border-blue-500/20 text-blue-400 
                        hover:bg-blue-500/20 hover:text-blue-300 transition-all duration-200
                        focus-visible:ring-offset-zinc-900 focus-visible:ring-blue-400/20
                        group"
-            >
-              <Package className="h-4 w-4 mr-2" />
-              <span>Purchase More Pages</span>
-              <ChevronRight className="h-4 w-4 ml-2 group-hover:translate-x-0.5 transition-transform" />
-            </Button>
+              >
+                <Package className="h-4 w-4 mr-2" />
+                <span>Purchase More Pages</span>
+                <ChevronRight className="h-4 w-4 ml-2 group-hover:translate-x-0.5 transition-transform" />
+              </Button>
+            </Link>
             <p className="text-xs text-zinc-500 text-center">{getStatusMessage(availablePages)}</p>
           </div>
         )}
