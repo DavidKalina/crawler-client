@@ -98,18 +98,27 @@ const CrawlJobsTable = ({
     };
   }, [fetchJobs, pagination.page, selectedStatus, supabase]);
 
-  const handlePageChange = (newPage: number) => {
-    fetchJobs(newPage, selectedStatus);
-  };
+  const handlePageChange = useCallback(
+    (newPage: number) => {
+      fetchJobs(newPage, selectedStatus);
+    },
+    [fetchJobs, selectedStatus]
+  );
 
-  const handleStatusChange = (newStatus: string) => {
-    setSelectedStatus(newStatus);
-    fetchJobs(1, newStatus);
-  };
+  const handleStatusChange = useCallback(
+    (newStatus: string) => {
+      setSelectedStatus(newStatus);
+      fetchJobs(1, newStatus);
+    },
+    [fetchJobs]
+  );
 
-  const handleRowClick = (jobId: string) => {
-    router.push(`/dashboard/${jobId}`);
-  };
+  const handleRowClick = useCallback(
+    (jobId: string) => {
+      router.push(`/dashboard/${jobId}`);
+    },
+    [router]
+  );
 
   return (
     <div className="space-y-6">
@@ -200,7 +209,7 @@ const CrawlJobsTable = ({
               variant="outline"
               onClick={() => handlePageChange(pagination.page + 1)}
               disabled={pagination.page === pagination.totalPages || loading}
-              className="bg-transparent border-green-800 text-green-400 hover:bg-zinc-800 hover:text-white disabled:opacity-50 disabled:hover:bg-transparent"
+              className="bg-transparent border-green-800 text-green-400 hover:bg-zinc-800 hover:text-white disabled:opacity-50 disabled:hover:bg-transparent cursor-grab"
             >
               Next
             </Button>

@@ -70,4 +70,4 @@ const CrawlJobTableRow: React.FC<CrawlJobTableRowProps> = ({
   );
 };
 
-export default CrawlJobTableRow;
+export default React.memo(CrawlJobTableRow);

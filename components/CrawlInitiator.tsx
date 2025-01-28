@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Slider } from "@/components/ui/slider";
 import { useToast } from "@/hooks/use-toast";
 import { Globe, Layers, LinkIcon, Loader2, Info } from "lucide-react";
-import { useState } from "react";
+import { useCallback, useState } from "react";
 
 const CrawlInitiator = () => {
   const [depth, setDepth] = useState(1);
@@ -15,14 +15,14 @@ const CrawlInitiator = () => {
   const [isUrlValid, setIsUrlValid] = useState(true);
   const { toast } = useToast();
 
-  const validateUrl = (input: string) => {
+  const validateUrl = useCallback((input: string) => {
     try {
       new URL(input);
       return true;
     } catch {
       return false;
     }
-  };
+  }, []);
 
   const handleUrlChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newUrl = e.target.value;
@@ -30,7 +30,7 @@ const CrawlInitiator = () => {
     setIsUrlValid(newUrl === "" || validateUrl(newUrl));
   };
 
-  const handleSubmit = async () => {
+  const handleSubmit = useCallback(async () => {
     if (!validateUrl(url)) {
       toast({
         title: "Invalid URL",
@@ -69,7 +69,7 @@ const CrawlInitiator = () => {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [allowedDomains, depth, toast, url, validateUrl]);
 
   return (
     <Card className="bg-zinc-900 border border-zinc-800 shadow-2xl">
