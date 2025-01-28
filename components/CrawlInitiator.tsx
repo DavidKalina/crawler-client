@@ -8,7 +8,8 @@ import { Slider } from "@/components/ui/slider";
 import { useToast } from "@/hooks/use-toast";
 import { Globe, Layers, LinkIcon, Loader2 } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
+import UrlHistory from "./UrlHistory";
 
 const CrawlInitiator = () => {
   const [depth, setDepth] = useState(1);
@@ -28,10 +29,50 @@ const CrawlInitiator = () => {
     }
   }, []);
 
+  const extractDomain = useCallback((input: string) => {
+    try {
+      const url = new URL(input);
+      return url.hostname;
+    } catch {
+      return "";
+    }
+  }, []);
+
   const handleUrlChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newUrl = e.target.value;
     setUrl(newUrl);
     setIsUrlValid(newUrl === "" || validateUrl(newUrl));
+  };
+
+  useEffect(() => {
+    if (url && validateUrl(url)) {
+      const domain = extractDomain(url);
+      setAllowedDomains(domain);
+    }
+  }, [url, validateUrl, extractDomain]);
+
+  const handleHistorySelect = (selectedUrl: string, selectedDomains: string) => {
+    setUrl(selectedUrl);
+    setAllowedDomains(selectedDomains);
+  };
+
+  // Function to update URL history
+  const updateUrlHistory = (newUrl: string, domains: string) => {
+    const savedHistory = localStorage.getItem("urlHistory");
+    const history = savedHistory ? JSON.parse(savedHistory) : [];
+
+    const newEntry = {
+      url: newUrl,
+      allowedDomains: domains,
+      timestamp: Date.now(),
+    };
+
+    // Remove duplicates and keep only last 5 entries
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const filteredHistory = history.filter((entry: any) => entry.url !== newUrl);
+    const newHistory = [newEntry, ...filteredHistory].slice(0, 5);
+
+    localStorage.setItem("urlHistory", JSON.stringify(newHistory));
   };
 
   const handleSubmit = useCallback(async () => {
@@ -53,8 +94,9 @@ const CrawlInitiator = () => {
       });
       if (!result.success) throw new Error(result.error);
 
-      setUrl((prev) => prev);
-      setAllowedDomains("");
+      // Only update history on successful submission
+      updateUrlHistory(url, allowedDomains);
+
       toast({
         variant: "success",
         title: "Success",
@@ -82,6 +124,7 @@ const CrawlInitiator = () => {
       </CardHeader>
 
       <CardContent className="space-y-4 pt-4">
+        <UrlHistory onSelect={handleHistorySelect} />
         <div>
           <div className="relative">
             <div className="absolute inset-y-0 left-0 pl-2.5 flex items-center pointer-events-none">

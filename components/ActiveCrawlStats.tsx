@@ -16,9 +16,8 @@ export const ActiveCrawlsStats = () => {
         const { count, error } = await supabase
           .from("web_crawl_jobs")
           .select("*", { count: "exact", head: true })
-          .eq("status", "running");
+          .eq("status", "pending");
 
-        console.log(count);
         if (error) throw error;
 
         setStats({ count: count || 0, loading: false });
@@ -54,10 +53,10 @@ export const ActiveCrawlsStats = () => {
   return (
     <StatsCard
       variant="blue"
-      title="Active Crawls"
+      title="Pending Crawls"
       value={stats.count}
       icon={Activity}
-      description="Currently running crawl jobs"
+      description="Currently pending crawl jobs"
       loading={stats.loading}
       error={stats.error}
     />

@@ -113,7 +113,7 @@ export default function SettingsPage() {
 
         <div className="flex h-full">
           <Tabs defaultValue="overview" orientation="vertical" className="flex-1 flex h-full">
-            <TabsList className="h-full w-64 flex-col items-start space-y-1 bg-zinc-900/50 border-r border-zinc-800 pt-6">
+            <TabsList className="h-full w-64 flex-col items-start space-y-1 bg-zinc-900/50  border-zinc-800 pt-6">
               <TabsTrigger
                 value="overview"
                 className="w-full justify-start gap-2.5 px-4 py-2.5 text-sm font-medium 
