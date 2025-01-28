@@ -53,13 +53,13 @@ export const StatsCard = ({
   if (error) {
     return (
       <Card className="bg-zinc-900 border-zinc-800">
-        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+        <CardHeader className="flex flex-row items-center justify-between py-2 px-4">
           <CardTitle className="text-sm font-medium text-zinc-300">{title}</CardTitle>
-          <div className="p-1.5 rounded-full bg-red-500/10">
-            <Icon className="h-4 w-4 text-red-400" />
+          <div className="p-1 rounded-full bg-red-500/10">
+            <Icon className="h-3 w-3 text-red-400" />
           </div>
         </CardHeader>
-        <CardContent>
+        <CardContent className="pb-3 px-4">
           <div className="text-sm text-red-400">Error loading data</div>
         </CardContent>
       </Card>
@@ -68,22 +68,22 @@ export const StatsCard = ({
 
   return (
     <Card className={`bg-zinc-900 border-zinc-800 transition-colors ${styles.hoverBg}`}>
-      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+      <CardHeader className="flex flex-row items-center justify-between py-2 px-4">
         <CardTitle className="text-sm font-medium text-zinc-300">{title}</CardTitle>
-        <div className={`p-1.5 rounded-full ${styles.iconBackground}`}>
-          <Icon className={`h-4 w-4 ${styles.iconColor}`} />
+        <div className={`p-1 rounded-full ${styles.iconBackground}`}>
+          <Icon className={`h-3 w-3 ${styles.iconColor}`} />
         </div>
       </CardHeader>
-      <CardContent>
+      <CardContent className="pb-3 px-4">
         {loading ? (
-          <div className="space-y-2">
-            <div className="h-8 w-16 bg-zinc-800 animate-pulse rounded" />
-            <div className="h-4 w-24 bg-zinc-800 animate-pulse rounded" />
+          <div className="space-y-1.5">
+            <div className="h-6 w-16 bg-zinc-800 animate-pulse rounded" />
+            <div className="h-3 w-24 bg-zinc-800 animate-pulse rounded" />
           </div>
         ) : (
           <>
-            <div className="text-xl font-medium text-zinc-100">{value}</div>
-            <p className="text-xs text-zinc-500 mt-1">{description}</p>
+            <div className="text-lg font-medium text-zinc-100">{value}</div>
+            <p className="text-xs text-zinc-500">{description}</p>
           </>
         )}
       </CardContent>

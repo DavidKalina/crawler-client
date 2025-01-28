@@ -45,9 +45,9 @@ const CrawlJobsTable = ({
   const [selectedStatus, setSelectedStatus] = useState<string>("all");
   const [pagination, setPagination] = useState<PaginationState>({
     page: 1,
-    pageSize: 10,
+    pageSize: 5,
     total: initialTotal,
-    totalPages: Math.ceil(initialTotal / 10),
+    totalPages: Math.ceil(initialTotal / 5),
   });
 
   const supabase = createClient();

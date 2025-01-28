@@ -30,21 +30,23 @@ const CrawlJobTableRow: React.FC<CrawlJobTableRowProps> = ({
       className="cursor-pointer transition-colors border-b border-zinc-800 hover:bg-zinc-800/50 bg-zinc-900 group"
     >
       <TableCell className="p-4">
-        <span className="text-zinc-100 font-medium truncate block max-w-[200px] group-hover:text-white">
+        <span className="text-zinc-100 text-sm font-medium truncate block max-w-[200px] group-hover:text-white">
           {job.start_url}
         </span>
       </TableCell>
       <TableCell className="p-4">
         <StatusIndicator status={job.status} />
       </TableCell>
-      <TableCell className="p-4 text-zinc-100 group-hover:text-zinc-300">{job.max_depth}</TableCell>
-      <TableCell className="p-4 text-zinc-100 group-hover:text-zinc-300">
+      <TableCell className="p-4 text-zinc-100 text-sm group-hover:text-zinc-300">
+        {job.max_depth}
+      </TableCell>
+      <TableCell className="p-4 text-zinc-100 text-sm group-hover:text-zinc-300">
         {format(new Date(job.created_at), "MMM d, yyyy HH:mm")}
       </TableCell>
-      <TableCell className="p-4 text-zinc-100 group-hover:text-zinc-300">
+      <TableCell className="p-4 text-zinc-100 text-sm group-hover:text-zinc-300">
         {format(new Date(job.updated_at), "MMM d, yyyy HH:mm")}
       </TableCell>
-      <TableCell className="p-4 text-zinc-100 group-hover:text-zinc-300">
+      <TableCell className="p-4 text-zinc-100 text-sm group-hover:text-zinc-300">
         {job.completed_at ? format(new Date(job.completed_at), "MMM d, yyyy HH:mm") : "-"}
       </TableCell>
       <TableCell className="p-4">

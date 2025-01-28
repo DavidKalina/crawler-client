@@ -22,7 +22,7 @@ const DashboardLayout = ({
         <div className="max-w-8xl mx-auto space-y-6">
           {/* Header Section with stronger hierarchy */}
           <div className="border-b border-zinc-800 pb-4">
-            <h1 className="text-3xl font-semibold text-zinc-100 mb-2">
+            <h1 className="text-2xl font-semibold text-zinc-100 mb-2">
               {crawlJobId ? "Crawl Job Details" : "Dashboard"}
             </h1>
             <p className="text-sm text-zinc-400">
