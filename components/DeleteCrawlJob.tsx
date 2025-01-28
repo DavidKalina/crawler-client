@@ -38,7 +38,8 @@ const DeleteCrawlJobButton = ({
 
     try {
       const response = await deleteCrawlJob(crawlJobId);
-      if (response.success) {
+
+      if (!response.success) {
         throw new Error("Error deleting crawl job");
       }
 

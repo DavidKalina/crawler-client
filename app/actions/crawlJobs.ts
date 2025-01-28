@@ -53,10 +53,11 @@ export async function deleteCrawlJob(jobId: string): ActionResult {
     const supabase = await createClient();
 
     // Get user session
+    // Get user session
     const {
-      data: { session },
-    } = await supabase.auth.getSession();
-    if (!session) {
+      data: { user },
+    } = await supabase.auth.getUser();
+    if (!user) {
       return { success: false, error: "Unauthorized" };
     }
 
@@ -67,7 +68,7 @@ export async function deleteCrawlJob(jobId: string): ActionResult {
       .eq("id", validatedId)
       .single();
 
-    if (!job || job.user_id !== session.user.id) {
+    if (!job || job.user_id !== user.id) {
       return { success: false, error: "Unauthorized" };
     }
 
@@ -93,9 +94,9 @@ export async function stopCrawlJob(jobId: string): ActionResult {
 
     // Get user session
     const {
-      data: { session },
-    } = await supabase.auth.getSession();
-    if (!session) {
+      data: { user },
+    } = await supabase.auth.getUser();
+    if (!user) {
       return { success: false, error: "Unauthorized" };
     }
 
@@ -106,7 +107,7 @@ export async function stopCrawlJob(jobId: string): ActionResult {
       .eq("id", validatedId)
       .single();
 
-    if (!job || job.user_id !== session.user.id) {
+    if (!job || job.user_id !== user.id) {
       return { success: false, error: "Unauthorized" };
     }
 
@@ -143,9 +144,9 @@ export async function getCrawlStats(jobId: string): ActionResult<CrawlStats> {
 
     // Get user session
     const {
-      data: { session },
-    } = await supabase.auth.getSession();
-    if (!session) {
+      data: { user },
+    } = await supabase.auth.getUser();
+    if (!user) {
       return { success: false, error: "Unauthorized" };
     }
 
