@@ -20,7 +20,7 @@ export default async function CrawlJobsPage() {
 
   return (
     <DashboardLayout>
-      <div className="lg:col-span-1 space-y-6">
+      <div className="lg:col-span-1 space-y-4">
         <CrawlInitiator />
         <QuotaDisplayWrapper />
       </div>
