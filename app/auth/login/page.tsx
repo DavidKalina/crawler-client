@@ -15,7 +15,7 @@ import { Label } from "@/components/ui/label";
 import { createClient } from "@/utils/supabase/client";
 import { Loader2, LogIn, Mail, Lock } from "lucide-react";
 import { useRouter } from "next/navigation";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 
 interface LoginFormData {
   email: string;
@@ -31,6 +31,19 @@ const LoginPage = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const supabase = createClient();
+
+  useEffect(() => {
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((event, session) => {
+      if (event === "SIGNED_IN" && session) {
+        router.refresh(); // Refresh the current route
+        router.push("/dashboard"); // Then redirect
+      }
+    });
+
+    return () => subscription.unsubscribe();
+  }, [router, supabase]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -52,7 +65,6 @@ const LoginPage = () => {
       });
 
       if (error) throw error;
-      router.push("/dashboard");
     } catch (err) {
       setError(err instanceof Error ? err.message : "An error occurred during login");
     } finally {
