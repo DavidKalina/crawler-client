@@ -37,7 +37,7 @@ const fetchQueueStatus = async (crawlJobId: string) => {
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const setupWebSocket = (onUpdate: (data: any) => void): WebSocket => {
-  const ws = new WebSocket(`ws://${process.env.NEXT_PUBLIC_BASE_URL}/ws`);
+  const ws = new WebSocket(`wss://${process.env.NEXT_PUBLIC_BASE_URL}/ws`);
 
   ws.onmessage = (event) => {
     const data = JSON.parse(event.data);
