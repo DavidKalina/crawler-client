@@ -60,6 +60,16 @@ export async function updateSession(request: NextRequest) {
     path.includes("/static/") ||
     isResetPasswordPath; // Add this
 
+  if (path === "/") {
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+
+    const url = request.nextUrl.clone();
+    url.pathname = user ? "/dashboard" : "/auth/login";
+    return NextResponse.redirect(url);
+  }
+
   // Specific auth-related paths
   const isVerifyPath = path.includes("/auth/verify");
   const isLoginPath = path.includes("/auth/login");
