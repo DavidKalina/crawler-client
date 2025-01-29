@@ -115,7 +115,7 @@ export async function stopCrawlJob(jobId: string): ActionResult {
       return { success: false, error: "Job is not running or pending" };
     }
 
-    const response = await fetch(`http://localhost:3000/api/queue/stop/${jobId}`, {
+    const response = await fetch(`${process.env.BASE_URL}/api/queue/stop/${jobId}`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

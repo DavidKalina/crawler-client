@@ -35,7 +35,7 @@ export async function startCrawl(formData: {
       };
     }
 
-    const response = await fetch("http://localhost:3000/api/crawl", {
+    const response = await fetch(`${process.env.BASE_URL}/api/crawl`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
