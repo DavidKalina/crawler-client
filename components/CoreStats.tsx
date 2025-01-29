@@ -1,9 +1,8 @@
 "use client";
 
 import { getCrawlStats } from "@/app/actions/crawlJobs";
-import { createClient } from "@/utils/supabase/client";
 import { AlertCircle, Clock, Globe2, HardDrive, Hash } from "lucide-react";
-import { JSX, useEffect, useState, useCallback } from "react";
+import { JSX, useCallback, useEffect, useState } from "react";
 
 interface StatItemProps {
   icon: JSX.ElementType;
@@ -26,7 +25,6 @@ const POLLING_INTERVAL = 5000;
 const CoreStats = ({ crawlJobId }: { crawlJobId: string }) => {
   const [stats, setStats] = useState<CrawlStats | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const supabase = createClient();
 
   const fetchCrawlStats = useCallback(async () => {
     try {
@@ -55,7 +53,7 @@ const CoreStats = ({ crawlJobId }: { crawlJobId: string }) => {
       console.error("Error fetching crawl stats:", err);
       setError(err instanceof Error ? err.message : "Failed to fetch stats");
     }
-  }, [crawlJobId, supabase]);
+  }, [crawlJobId, error]);
 
   useEffect(() => {
     fetchCrawlStats();
