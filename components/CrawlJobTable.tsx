@@ -39,9 +39,9 @@ const CrawlJobsTable = ({
   const [loading, setLoading] = useState(false);
   const [pagination, setPagination] = useState<PaginationState>({
     page: 1,
-    pageSize: 6,
+    pageSize: 7,
     total: initialTotal,
-    totalPages: Math.ceil(initialTotal / 6),
+    totalPages: Math.ceil(initialTotal / 7),
   });
 
   const { toast } = useToast();
