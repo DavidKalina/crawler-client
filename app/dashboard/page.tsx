@@ -1,7 +1,9 @@
 // page.tsx (Server Component)
-import CrawlInitiator from "@/components/CrawlInitiator";
+import { ActiveCrawlsStats } from "@/components/ActiveCrawlStats";
+import { CompletedJobsStats } from "@/components/CompletedJobStats";
 import CrawlJobsTable from "@/components/CrawlJobTable";
 import DashboardLayout from "@/components/DashboardLayout";
+import { FailedJobsStats } from "@/components/FailedJobStats";
 import QuotaDisplayWrapper from "@/components/QuotaDisplayWrapper";
 import { createClient } from "@/utils/supabase/server";
 
@@ -20,9 +22,11 @@ export default async function CrawlJobsPage() {
 
   return (
     <DashboardLayout>
-      <div className="lg:col-span-1 space-y-4">
-        <CrawlInitiator />
+      <div className="lg:col-span-1 flex flex-col justify-between">
         <QuotaDisplayWrapper />
+        <ActiveCrawlsStats />
+        <CompletedJobsStats />
+        <FailedJobsStats />
       </div>
       <div className="lg:col-span-3">
         <CrawlJobsTable initialJobs={jobs ?? []} initialTotal={count ?? 0} />

@@ -209,7 +209,7 @@ const CrawlJobsTable = ({
         </Table>
 
         <div className="flex items-center justify-between px-4 py-3 bg-zinc-900/90 border-t border-zinc-800">
-          <div className="text-sm text-zinc-100">
+          <div className="text-zinc-100">
             Showing {jobs.length > 0 ? (pagination.page - 1) * pagination.pageSize + 1 : 0} to{" "}
             {Math.min(pagination.page * pagination.pageSize, pagination.total)} of{" "}
             {pagination.total} results

@@ -66,7 +66,7 @@ export const StatusIndicator: React.FC<{ status: WebCrawlJob["status"] }> = ({ s
       className={`
         inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full
         ${statusStyle.bg} ${statusStyle.text} ${statusStyle.border}
-        border text-xs font-medium
+        border text-sm font-medium
         transition-colors duration-200
       `}
     >
