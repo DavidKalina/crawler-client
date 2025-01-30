@@ -3,7 +3,6 @@
 import { startCrawl } from "@/app/actions/initiateCrawl";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Slider } from "@/components/ui/slider";
 import { useToast } from "@/hooks/use-toast";
 import { Globe, Layers, LinkIcon, Loader2 } from "lucide-react";
 import { useRouter } from "next/navigation";
@@ -147,14 +146,16 @@ const CrawlInitiator = () => {
             {depth} level{depth > 1 ? "s" : ""}
           </span>
         </div>
-        <Slider
-          value={[depth]}
-          onValueChange={(value) => setDepth(value[0])}
+        <Input
+          type="number"
+          value={depth}
+          onChange={(evt) => setDepth(parseInt(evt.currentTarget.value))}
           max={5}
           min={1}
-          step={1}
           disabled={isLoading}
           aria-label="Crawl depth"
+          className="h-9 bg-zinc-900 border-zinc-800 text-zinc-100 placeholder:text-zinc-500 
+                   focus-visible:ring-blue-400/20 focus-visible:border-blue-400/20 focus-visible:ring-offset-0"
         />
       </div>
 

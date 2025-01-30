@@ -15,7 +15,7 @@ export default async function CrawlJobsPage() {
       .from("web_crawl_jobs")
       .select("*")
       .order("created_at", { ascending: false })
-      .range(0, 6),
+      .range(0, 9),
   ]);
 
   return (
@@ -37,6 +37,7 @@ export default async function CrawlJobsPage() {
             <div className="space-y-4">
               <CompletedJobsStats />
               <FailedJobsStats />
+              <ActiveCrawlsStats />
             </div>
           </div>
         </div>

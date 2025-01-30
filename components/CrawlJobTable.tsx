@@ -39,9 +39,9 @@ const CrawlJobsTable = ({
   const [loading, setLoading] = useState(false);
   const [pagination, setPagination] = useState<PaginationState>({
     page: 1,
-    pageSize: 7,
+    pageSize: 10,
     total: initialTotal,
-    totalPages: Math.ceil(initialTotal / 7),
+    totalPages: Math.ceil(initialTotal / 10),
   });
 
   const { toast } = useToast();
@@ -173,19 +173,25 @@ const CrawlJobsTable = ({
         <Table>
           <TableHeader>
             <TableRow className="border-zinc-800 bg-zinc-900/90 hover:bg-zinc-900/90">
-              <TableHead className="text-zinc-100 font-medium w-[200px] bg-zinc-900/90">
+              <TableHead className="p-6 text-zinc-100 font-medium w-[200px] bg-zinc-900/90">
                 Start URL
               </TableHead>
-              <TableHead className="text-zinc-100 font-medium bg-zinc-900/90">Status</TableHead>
-              <TableHead className="text-zinc-100 font-medium bg-zinc-900/90">Max Depth</TableHead>
-              <TableHead className="text-zinc-100 font-medium bg-zinc-900/90">Created At</TableHead>
-              <TableHead className="text-zinc-100 font-medium bg-zinc-900/90">
+              <TableHead className="p-6 text-zinc-100 font-medium bg-zinc-900/90">Status</TableHead>
+              <TableHead className="p-6 text-zinc-100 font-medium bg-zinc-900/90">
+                Max Depth
+              </TableHead>
+              <TableHead className="p-6 text-zinc-100 font-medium bg-zinc-900/90">
+                Created At
+              </TableHead>
+              <TableHead className="p-6 text-zinc-100 font-medium bg-zinc-900/90">
                 Last Updated
               </TableHead>
-              <TableHead className="text-zinc-100 font-medium bg-zinc-900/90">
+              <TableHead className="p-6 text-zinc-100 font-medium bg-zinc-900/90">
                 Completed At
               </TableHead>
-              <TableHead className="text-zinc-100 font-medium bg-zinc-900/90">Actions</TableHead>
+              <TableHead className="p-6 text-zinc-100 font-medium bg-zinc-900/90">
+                Actions
+              </TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
