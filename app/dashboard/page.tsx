@@ -3,6 +3,7 @@ import { CompletedJobsStats } from "@/components/CompletedJobStats";
 import CrawlJobsTable from "@/components/CrawlJobTable";
 import DashboardLayout from "@/components/DashboardLayout";
 import { FailedJobsStats } from "@/components/FailedJobStats";
+import { PagesCrawledStats } from "@/components/PagesCrawledStats";
 import QuotaDisplayWrapper from "@/components/QuotaDisplayWrapper";
 import { createClient } from "@/utils/supabase/server";
 
@@ -34,7 +35,7 @@ export default async function CrawlJobsPage() {
 
           <div className="rounded-lg border border-zinc-800 bg-zinc-900/50 p-4">
             <h2 className="text-sm font-medium text-zinc-200 mb-4">Job Statistics</h2>
-            <div className="space-y-4">
+            <div className="space-y-6">
               <CompletedJobsStats />
               <FailedJobsStats />
               <ActiveCrawlsStats />
