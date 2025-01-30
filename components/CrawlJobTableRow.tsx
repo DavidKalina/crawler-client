@@ -7,7 +7,6 @@ import { PaginationState } from "./CrawlJobTable";
 import DeleteCrawlJobButton from "./DeleteCrawlJob";
 import DownloadCrawledPages from "./DownloadCrawledPages";
 import { StatusIndicator } from "./StatusIndicator";
-import StopCrawlButton from "./StopCrawlButton";
 import { TableCell, TableRow } from "./ui/table";
 import { createClient } from "@/utils/supabase/client";
 
@@ -102,7 +101,6 @@ const CrawlJobTableRow: React.FC<CrawlJobTableRowProps> = ({
       <TableCell className="p-4">
         <div className="flex items-center gap-3 opacity-80 group-hover:opacity-100 transition-opacity">
           <DownloadCrawledPages crawlJobId={job.id} />
-          <StopCrawlButton crawlJobId={job.id} status={job.status} />
           <DeleteCrawlJobButton crawlJobId={job.id} status={job.status} />
         </div>
       </TableCell>
