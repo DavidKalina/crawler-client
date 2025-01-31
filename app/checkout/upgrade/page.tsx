@@ -114,7 +114,10 @@ export default function QuotaUpgradePage() {
         `${process.env.NEXT_PUBLIC_BASE_URL}/api/create-checkout-session`,
         {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
+          headers: {
+            "Content-Type": "application/json",
+          },
+          credentials: "include", // Include credentials if you're using session cookies
           body: JSON.stringify({
             package: pkg,
             metadata: {
@@ -124,12 +127,19 @@ export default function QuotaUpgradePage() {
         }
       );
 
-      if (!response.ok) throw new Error("Failed to create checkout session");
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || "Failed to create checkout session");
+      }
 
       const { sessionUrl } = await response.json();
-      window.open(sessionUrl, "_blank");
-    } catch {
+
+      // Instead of window.open, use window.location
+      window.location.href = sessionUrl;
+    } catch (error) {
+      console.error("Checkout error:", error);
       setError("Failed to initiate purchase. Please try again.");
+    } finally {
       setLoading(false);
     }
   };
