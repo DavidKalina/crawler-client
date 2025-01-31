@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
 import { Globe, Layers, LinkIcon, Loader2 } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import UrlHistory from "./UrlHistory";
 
 const CrawlInitiator = () => {
@@ -42,12 +42,20 @@ const CrawlInitiator = () => {
     setIsUrlValid(newUrl === "" || validateUrl(newUrl));
   };
 
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  const [maxWidth, setMaxWidth] = useState(0);
+
   useEffect(() => {
     if (url && validateUrl(url)) {
       const domain = extractDomain(url);
       setAllowedDomains(domain);
     }
   }, [url, validateUrl, extractDomain]);
+
+  useEffect(() => {
+    setMaxWidth(containerRef?.current?.clientWidth ?? 200);
+  }, []);
 
   const handleHistorySelect = (selectedUrl: string, selectedDomains: string) => {
     setUrl(selectedUrl);
@@ -110,8 +118,10 @@ const CrawlInitiator = () => {
   }, [allowedDomains, depth, router, toast, url, validateUrl]);
 
   return (
-    <div className="space-y-4">
-      <UrlHistory onSelect={handleHistorySelect} />
+    <div className="space-y-4" ref={containerRef}>
+      <div style={{ maxWidth }}>
+        <UrlHistory onSelect={handleHistorySelect} />
+      </div>
 
       <div>
         <div className="relative">

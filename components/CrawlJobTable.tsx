@@ -173,23 +173,25 @@ const CrawlJobsTable = ({
         <Table>
           <TableHeader>
             <TableRow className="border-zinc-800 bg-zinc-900/90 hover:bg-zinc-900/90">
-              <TableHead className="p-6 text-zinc-100 font-medium w-[200px] bg-zinc-900/90">
+              <TableHead className="p-4 2xl:p-6 text-zinc-100 font-medium w-[200px] bg-zinc-900/90">
                 Start URL
               </TableHead>
-              <TableHead className="p-6 text-zinc-100 font-medium bg-zinc-900/90">Status</TableHead>
-              <TableHead className="p-6 text-zinc-100 font-medium bg-zinc-900/90">
+              <TableHead className="p-4 2xl:p-6 text-zinc-100 font-medium bg-zinc-900/90">
+                Status
+              </TableHead>
+              <TableHead className="p-4 2xl:p-6 text-zinc-100 font-medium bg-zinc-900/90">
                 Max Depth
               </TableHead>
-              <TableHead className="p-6 text-zinc-100 font-medium bg-zinc-900/90">
+              <TableHead className="p-4 2xl:p-6 text-zinc-100 font-medium bg-zinc-900/90">
                 Created At
               </TableHead>
-              <TableHead className="p-6 text-zinc-100 font-medium bg-zinc-900/90">
+              <TableHead className="p-4 2xl:p-6 text-zinc-100 font-medium bg-zinc-900/90">
                 Last Updated
               </TableHead>
-              <TableHead className="p-6 text-zinc-100 font-medium bg-zinc-900/90">
+              <TableHead className="p-4 2xl:p-6 text-zinc-100 font-medium bg-zinc-900/90">
                 Completed At
               </TableHead>
-              <TableHead className="p-6 text-zinc-100 font-medium bg-zinc-900/90">
+              <TableHead className="p-4 2xl:p-6 text-zinc-100 font-medium bg-zinc-900/90">
                 Actions
               </TableHead>
             </TableRow>
@@ -215,7 +217,7 @@ const CrawlJobsTable = ({
         </Table>
 
         <div className="flex items-center justify-between px-4 py-3 bg-zinc-900/90 border-t border-zinc-800">
-          <div className="text-zinc-100">
+          <div className="text-zinc-100 text-sm 2xl:text-md">
             Showing {jobs.length > 0 ? (pagination.page - 1) * pagination.pageSize + 1 : 0} to{" "}
             {Math.min(pagination.page * pagination.pageSize, pagination.total)} of{" "}
             {pagination.total} results
@@ -226,7 +228,7 @@ const CrawlJobsTable = ({
               variant="outline"
               onClick={() => handlePageChange(pagination.page - 1)}
               disabled={pagination.page === 1 || loading}
-              className="bg-transparent border-zinc-800 text-zinc-400 hover:bg-zinc-800 hover:text-white disabled:opacity-50 disabled:hover:bg-transparent"
+              className="bg-transparent text-sm 2xl:text-md border-zinc-800 text-zinc-400 hover:bg-zinc-800 hover:text-white disabled:opacity-50 disabled:hover:bg-transparent"
             >
               Previous
             </Button>
@@ -234,7 +236,7 @@ const CrawlJobsTable = ({
               variant="outline"
               onClick={() => handlePageChange(pagination.page + 1)}
               disabled={pagination.page === pagination.totalPages || loading}
-              className="bg-transparent border-green-800 text-green-400 hover:bg-zinc-800 hover:text-white disabled:opacity-50 disabled:hover:bg-transparent"
+              className="bg-transparent text-sm 2xl:text-md border-green-800 text-green-400 hover:bg-zinc-800 hover:text-white disabled:opacity-50 disabled:hover:bg-transparent"
             >
               Next
             </Button>

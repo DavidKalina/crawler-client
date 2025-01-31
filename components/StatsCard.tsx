@@ -71,7 +71,7 @@ export const StatsCard = ({
       <CardHeader className="flex flex-row items-center justify-between py-2 px-4">
         <CardTitle className="text-sm font-medium text-zinc-300">{title}</CardTitle>
         <div className={`p-1 rounded-full ${styles.iconBackground}`}>
-          <Icon className={`h-4 w-4 ${styles.iconColor}`} />
+          <Icon className={`h-3 w-3 2xl:h-4 2xl:w-4 ${styles.iconColor}`} />
         </div>
       </CardHeader>
       <CardContent className="pb-3 px-4">
