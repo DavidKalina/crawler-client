@@ -24,13 +24,7 @@ export default async function CrawlJobsPage() {
       <div className="lg:col-span-1 space-y-4">
         {/* Stats Group */}
         <div className="space-y-4">
-          <div className="rounded-lg border border-zinc-800 bg-zinc-900/50 p-4">
-            <h2 className="text-sm font-medium text-zinc-200 mb-4">System Status</h2>
-            <div className="space-y-4">
-              <QuotaDisplayWrapper />
-              <ActiveCrawlsStats />
-            </div>
-          </div>
+          <QuotaDisplayWrapper />
 
           <div className="rounded-lg border border-zinc-800 bg-zinc-900/50 p-4">
             <h2 className="text-sm font-medium text-zinc-200 mb-4">Job Statistics</h2>
