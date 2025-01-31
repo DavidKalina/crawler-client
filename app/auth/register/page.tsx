@@ -116,6 +116,7 @@ const RegistrationPage = () => {
         email: formData.email,
         password: formData.password,
         options: {
+          emailRedirectTo: `${process.env.NEXT_PUBLIC_BASE_URL}/auth/callback`,
           data: {
             full_name: formData.fullName,
           },
