@@ -84,6 +84,14 @@ export async function updateSession(request: NextRequest) {
   if (user) {
     // User exists, handle various scenarios
     const email_confirmed = user.email_confirmed_at;
+    const isCallbackPath = path === "/auth/callback";
+
+    // If coming from callback and email is confirmed, go to dashboard
+    if (isCallbackPath && email_confirmed) {
+      const url = request.nextUrl.clone();
+      url.pathname = "/dashboard";
+      return NextResponse.redirect(url);
+    }
 
     // If email not confirmed and not on verification page, redirect to verify
     if (!email_confirmed && !isVerifyPath && !isPublicPath && !isResetPasswordPath) {
