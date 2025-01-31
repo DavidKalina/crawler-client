@@ -30,6 +30,7 @@ const LoginPage = () => {
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [isPasswordError, setIsPasswordError] = useState(false);
   const supabase = createClient();
 
   useEffect(() => {
@@ -37,8 +38,8 @@ const LoginPage = () => {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((event, session) => {
       if (event === "SIGNED_IN" && session) {
-        router.refresh(); // Refresh the current route
-        router.push("/dashboard"); // Then redirect
+        router.refresh();
+        router.push("/dashboard");
       }
     });
 
@@ -51,12 +52,17 @@ const LoginPage = () => {
       ...prev,
       [name]: value,
     }));
+    // Reset password error state when user starts typing again
+    if (isPasswordError) {
+      setIsPasswordError(false);
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     setError(null);
+    setIsPasswordError(false);
 
     try {
       const { error } = await supabase.auth.signInWithPassword({
@@ -64,7 +70,17 @@ const LoginPage = () => {
         password: formData.password,
       });
 
-      if (error) throw error;
+      if (error) {
+        console.log(error);
+        // Check if the error is related to invalid password
+        if (
+          error.message.toLowerCase().includes("password") ||
+          error.message.toLowerCase().includes("invalid")
+        ) {
+          setIsPasswordError(true);
+        }
+        throw error;
+      }
     } catch (err) {
       setError(err instanceof Error ? err.message : "An error occurred during login");
     } finally {
@@ -159,7 +175,7 @@ const LoginPage = () => {
                 )}
               </Button>
 
-              <div className="flex gap-4 items-center justify-between">
+              <div className="flex items-start flex-col gap-4 items-center justify-between">
                 <div className="text-sm text-center text-zinc-500">
                   Don&apos;t have an account?{" "}
                   <a
@@ -169,15 +185,17 @@ const LoginPage = () => {
                     Sign up
                   </a>
                 </div>
-                <div className="text-sm text-center text-zinc-500">
-                  Forgot Password?{" "}
-                  <a
-                    href="/auth/forgot-password"
-                    className="text-blue-400 hover:text-blue-300 transition-colors"
-                  >
-                    Sign up
-                  </a>
-                </div>
+                {isPasswordError && (
+                  <div className="text-sm text-center text-zinc-500">
+                    Forgot Password?{" "}
+                    <a
+                      href="/auth/forgot-password"
+                      className="text-blue-400 hover:text-blue-300 transition-colors"
+                    >
+                      Reset password
+                    </a>
+                  </div>
+                )}
               </div>
             </CardFooter>
           </form>
