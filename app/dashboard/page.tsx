@@ -3,7 +3,6 @@ import { CompletedJobsStats } from "@/components/CompletedJobStats";
 import CrawlJobsTable from "@/components/CrawlJobTable";
 import DashboardLayout from "@/components/DashboardLayout";
 import { FailedJobsStats } from "@/components/FailedJobStats";
-import { PagesCrawledStats } from "@/components/PagesCrawledStats";
 import QuotaDisplayWrapper from "@/components/QuotaDisplayWrapper";
 import { createClient } from "@/utils/supabase/server";
 
