@@ -82,7 +82,7 @@ export const StatsCard = ({
           </div>
         ) : (
           <>
-            <div className="text-lg font-medium text-zinc-100">{value}</div>
+            <div className="text-md font-medium text-zinc-100">{value}</div>
             <p className="text-xs text-zinc-500">{description}</p>
           </>
         )}
