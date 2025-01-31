@@ -81,6 +81,8 @@ const LoginPage = () => {
         }
         throw error;
       }
+
+      router.replace(`/`);
     } catch (err) {
       setError(err instanceof Error ? err.message : "An error occurred during login");
     } finally {
