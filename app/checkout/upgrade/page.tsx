@@ -110,16 +110,19 @@ export default function QuotaUpgradePage() {
     setLoading(true);
     setError("");
     try {
-      const response = await fetch("http://localhost:5000/api/create-checkout-session", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          package: pkg,
-          metadata: {
-            page_count: pkg.pages,
-          },
-        }),
-      });
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_BASE_URL}/api/create-checkout-session`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            package: pkg,
+            metadata: {
+              page_count: pkg.pages,
+            },
+          }),
+        }
+      );
 
       if (!response.ok) throw new Error("Failed to create checkout session");
 
