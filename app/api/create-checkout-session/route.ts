@@ -10,13 +10,32 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
   apiVersion: "2025-01-27.acacia",
 });
 
+// Helper function to handle CORS
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function corsResponse(data: any, status = 200) {
+  return new NextResponse(JSON.stringify(data), {
+    status,
+    headers: {
+      "Access-Control-Allow-Origin": process.env.BASE_URL || "*",
+      "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
+      "Access-Control-Allow-Headers": "Content-Type, Authorization",
+      "Content-Type": "application/json",
+    },
+  });
+}
+
+// Handle OPTIONS request for CORS preflight
+export async function OPTIONS() {
+  return corsResponse({});
+}
+
 export async function POST(req: Request) {
   try {
     const body = await req.json();
     const { package: pkg } = body;
 
     if (!pkg || !pkg.pages || !pkg.price || !pkg.id) {
-      return NextResponse.json({ error: "Invalid package data" }, { status: 400 });
+      return corsResponse({ error: "Invalid package data" }, 400);
     }
 
     // Get the current user
@@ -26,7 +45,7 @@ export async function POST(req: Request) {
     } = await supabase.auth.getSession();
 
     if (!session) {
-      return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
+      return corsResponse({ error: "Not authenticated" }, 401);
     }
 
     // Create Stripe checkout session
@@ -47,19 +66,19 @@ export async function POST(req: Request) {
         },
       ],
       metadata: {
-        page_count: pkg.pages.toString(), // Store as string to avoid potential number precision issues
+        page_count: pkg.pages.toString(),
         pages: pkg.pages,
         user_id: session.user.id,
         package_id: pkg.id,
       },
       customer_email: session.user.email,
-      success_url: `${process.env.NEXT_PUBLIC_BASE_URL}/checkout/success?session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${process.env.NEXT_PUBLIC_BASE_URL}/checkout/cancel`,
+      success_url: `${process.env.BASE_URL}/checkout/success?session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url: `${process.env.BASE_URL}/checkout/cancel`,
     });
 
-    return NextResponse.json({ sessionUrl: checkoutSession.url });
+    return corsResponse({ sessionUrl: checkoutSession.url });
   } catch (error) {
     console.error("Error creating checkout session:", error);
-    return NextResponse.json({ error: "Failed to create checkout session" }, { status: 500 });
+    return corsResponse({ error: "Failed to create checkout session" }, 500);
   }
 }
