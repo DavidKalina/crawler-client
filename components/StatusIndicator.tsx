@@ -35,10 +35,17 @@ export const getStatusColor = (status: WebCrawlJob["status"]) => {
       };
     case "stopping":
       return {
-        bg: "bg-orange-500/10",
-        border: "border-orange-500/20",
-        text: "text-orange-400",
-        icon: <StopCircle className="w-3.5 h-3.5" />,
+        bg: "bg-yellow-500/10", // Yellow indicates a transitional/warning state
+        border: "border-yellow-500/20",
+        text: "text-yellow-500",
+        icon: <Pause className="w-3.5 h-3.5" />, // Pause icon better represents "stopping" action
+      };
+    case "stopped":
+      return {
+        bg: "bg-red-500/10", // Red indicates a terminal/complete stop
+        border: "border-red-500/20",
+        text: "text-red-500",
+        icon: <StopCircle className="w-3.5 h-3.5" />, // Stop icon for final stopped state
       };
     case "crawled":
       return {
