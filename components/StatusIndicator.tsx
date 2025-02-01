@@ -78,7 +78,7 @@ export const StatusIndicator: React.FC<{ status: WebCrawlJob["status"] }> = ({ s
       `}
     >
       {statusStyle.icon}
-      <span className="capitalize text-sm 2xl:tex-base">{status}</span>
+      <span className="capitalize text-sx 2xl:text-sm">{status}</span>
     </span>
   );
 };

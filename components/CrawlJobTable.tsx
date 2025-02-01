@@ -121,7 +121,7 @@ const CrawlJobsTable = ({
 
   const handleRowClick = useCallback(
     (jobId: string) => {
-      router.push(`/job/${jobId}`);
+      router.push(`/crawl-jobs/${jobId}`);
     },
     [router]
   );
