@@ -41,11 +41,9 @@ const LoginPage = () => {
     } = supabase.auth.onAuthStateChange((event, session) => {
       if (event === "SIGNED_IN" && session) {
         setLoginSuccess(true);
-        // Add a small delay before redirecting to show the splash screen
-        setTimeout(() => {
-          router.refresh();
-          router.push("/dashboard");
-        }, 1000);
+        router.refresh();
+        // Remove the setTimeout and just navigate directly
+        router.push("/dashboard");
       }
     });
 

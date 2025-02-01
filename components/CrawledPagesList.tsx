@@ -127,7 +127,7 @@ const CrawledPagesList: React.FC<CrawledPagesListProps> = ({ pages, loading, onP
                         handlePageChange(page);
                       }}
                       isActive={currentPage === page}
-                      className="text-blue-500/50 bg-zinc-900 border-zinc-800 data-[active=true]:bg-blue-500/10 
+                      className="text-blue-500 bg-zinc-900 border-zinc-800 data-[active=true]:bg-blue-500/10 
                                data-[active=true]:text-blue-400 data-[active=true]:border-blue-500/20"
                     >
                       {page}
@@ -144,8 +144,8 @@ const CrawledPagesList: React.FC<CrawledPagesListProps> = ({ pages, loading, onP
                     }}
                     className={
                       currentPage === totalPages
-                        ? "text-green-500 pointer-events-none opacity-50"
-                        : "text-green-500"
+                        ? "text-emerald-500 pointer-events-none opacity-50"
+                        : "text-emerald-500"
                     }
                   />
                 </PaginationItem>
