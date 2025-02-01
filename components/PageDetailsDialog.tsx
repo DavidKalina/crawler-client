@@ -237,7 +237,7 @@ const PageDetailsDialog = ({
                 </div>
 
                 {/* Results Container */}
-                <div className="h-96 rounded-lg border border-zinc-800 max-w-xs:">
+                <div className="h-96 rounded-lg border border-zinc-800 max-w-xs md:max-w-xl">
                   <div className="h-full overflow-auto">
                     <pre
                       ref={preRef}
