@@ -187,7 +187,7 @@ const PageDetailsDialog = ({
           <TabsContent value="content" className="mt-4">
             <Card className="bg-zinc-900 border-zinc-800">
               <CardContent className="p-4 md:p-4">
-                <div className="prose prose-zinc prose-invert max-w-none">
+                <div className="prose prose-zinc prose-invert max-w-none max-h-[350px] overflow-y-auto">
                   <div className="text-base md:text-sm leading-relaxed md:leading-normal text-zinc-300">
                     {page.content_text || "No content available"}
                   </div>
