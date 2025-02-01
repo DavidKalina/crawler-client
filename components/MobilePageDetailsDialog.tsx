@@ -157,7 +157,7 @@ const MobilePageDetailsDialog = ({
                   className="mr-2"
                   onClick={() => onOpenChange(false)}
                 >
-                  <ChevronLeft className="h-6 w-6 text-zinc-400" />
+                  <ChevronLeft className="h-8 w-8 text-zinc-400" />
                 </Button>
                 <StatusIndicator status={page.processing_status} />
               </div>
