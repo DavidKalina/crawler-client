@@ -108,7 +108,7 @@ const CrawledPagesList: React.FC<CrawledPagesListProps> = ({ pages, loading, onP
       </CardHeader>
       <CardContent>
         <div className="space-y-4" id="pages-list">
-          <div className="space-y-2 max-h-[800px] overflow-y-auto">
+          <div className="space-y-2 max-h-[300px] md:max-h-[800px] overflow-y-auto">
             {loading ? (
               Array(5)
                 .fill(0)
