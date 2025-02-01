@@ -128,7 +128,7 @@ const PageDetailsDialog = ({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="w-full max-w-md md:max-w-2xl bg-zinc-900 border-zinc-800 p-0 h-full md:h-auto">
+      <DialogContent className="w-full max-w-md md:max-w-3xl bg-zinc-900 border-zinc-800 p-0 h-full md:h-auto">
         <DialogHeader className="px-4 md:px-6 py-4 border-b border-zinc-800/50">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-2.5 md:space-x-2">
@@ -187,7 +187,7 @@ const PageDetailsDialog = ({
           <TabsContent value="content" className="mt-4">
             <Card className="bg-zinc-900 border-zinc-800">
               <CardContent className="p-4 md:p-4">
-                <div className="prose prose-zinc prose-invert max-w-none max-h-[350px] overflow-y-auto">
+                <div className="prose prose-zinc prose-invertw-full max-w-md md:max-w-2xl max-h-[350px] overflow-y-auto">
                   <div className="text-base md:text-sm leading-relaxed md:leading-normal text-zinc-300">
                     {page.content_text || "No content available"}
                   </div>
