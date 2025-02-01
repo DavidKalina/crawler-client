@@ -189,7 +189,7 @@ const MobilePageDetailsDialog = ({
                 Content
               </Button>
               <Button
-                variant={activeView === "raw" ? "default" : "outline"}
+                variant={activeView === "raw" ? "outline" : "default"}
                 onClick={() => setActiveView("raw")}
                 className="w-full flex items-center justify-center gap-2"
               >
