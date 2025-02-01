@@ -10,56 +10,56 @@ export const getStatusColor = (status: WebCrawlJob["status"]) => {
         bg: "bg-blue-500/10",
         border: "border-blue-500/20",
         text: "text-blue-400",
-        icon: <Cog className="w-3 h-3 md:w-3.5 md:h-3.5 2xl:w-3.5 2xl:h-3.5 animate-spin" />,
+        icon: <Cog className="w-3.5 h-3.5 md:w-4 md:h-4 2xl:w-4 2xl:h-4 animate-spin" />,
       };
     case "completed":
       return {
         bg: "bg-emerald-500/10",
         border: "border-emerald-500/20",
         text: "text-emerald-400",
-        icon: <CheckCircle2 className="w-3 h-3 md:w-3.5 md:h-3.5 2xl:w-3.5 2xl:h-3.5" />,
+        icon: <CheckCircle2 className="w-3.5 h-3.5 md:w-4 md:h-4 2xl:w-4 2xl:h-4" />,
       };
     case "failed":
       return {
         bg: "bg-red-500/10",
         border: "border-red-500/20",
         text: "text-red-400",
-        icon: <XCircle className="w-3 h-3 md:w-3.5 md:h-3.5 2xl:w-3.5 2xl:h-3.5" />,
+        icon: <XCircle className="w-3.5 h-3.5 md:w-4 md:h-4 2xl:w-4 2xl:h-4" />,
       };
     case "paused":
       return {
         bg: "bg-amber-500/10",
         border: "border-amber-500/20",
         text: "text-amber-400",
-        icon: <Pause className="w-3 h-3 md:w-3.5 md:h-3.5 2xl:w-3.5 2xl:h-3.5" />,
+        icon: <Pause className="w-3.5 h-3.5 md:w-4 md:h-4 2xl:w-4 2xl:h-4" />,
       };
     case "stopping":
       return {
         bg: "bg-yellow-500/10",
         border: "border-yellow-500/20",
         text: "text-yellow-500",
-        icon: <Pause className="w-3 h-3 md:w-3.5 md:h-3.5 2xl:w-3.5 2xl:h-3.5" />,
+        icon: <Pause className="w-3.5 h-3.5 md:w-4 md:h-4 2xl:w-4 2xl:h-4" />,
       };
     case "stopped":
       return {
         bg: "bg-red-500/10",
         border: "border-red-500/20",
         text: "text-red-500",
-        icon: <StopCircle className="w-3 h-3 md:w-3.5 md:h-3.5 2xl:w-3.5 2xl:h-3.5" />,
+        icon: <StopCircle className="w-3.5 h-3.5 md:w-4 md:h-4 2xl:w-4 2xl:h-4" />,
       };
     case "crawled":
       return {
         bg: "bg-emerald-500/10",
         border: "border-emerald-500/20",
         text: "text-emerald-400",
-        icon: <CheckCircle2 className="w-3 h-3 md:w-3.5 md:h-3.5 2xl:w-3.5 2xl:h-3.5" />,
+        icon: <CheckCircle2 className="w-3.5 h-3.5 md:w-4 md:h-4 2xl:w-4 2xl:h-4" />,
       };
     default:
       return {
         bg: "bg-zinc-500/10",
         border: "border-zinc-500/20",
         text: "text-zinc-400",
-        icon: <Circle className="w-3 h-3 md:w-3.5 md:h-3.5 2xl:w-3.5 2xl:h-3.5 animate-pulse" />,
+        icon: <Circle className="w-3.5 h-3.5 md:w-4 md:h-4 2xl:w-4 2xl:h-4 animate-pulse" />,
       };
   }
 };
