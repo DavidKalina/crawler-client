@@ -1,17 +1,10 @@
 "use client";
-import React, { useState } from "react";
-import { Search } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import {
-  Pagination,
-  PaginationContent,
-  PaginationItem,
-  PaginationLink,
-  PaginationNext,
-  PaginationPrevious,
-} from "@/components/ui/pagination";
+import { Search } from "lucide-react";
+import React, { useState } from "react";
 import CrawledPageItem from "./CrawledPageItem";
+import ResponsivePagination from "./ResponsivePagination";
 
 interface CrawledPage {
   id: string;
@@ -139,60 +132,12 @@ const CrawledPagesList: React.FC<CrawledPagesListProps> = ({ pages, loading, onP
 
           {/* Pagination */}
           {!loading && totalPages > 1 && (
-            <Pagination>
-              <PaginationContent>
-                <PaginationItem>
-                  <PaginationPrevious
-                    href="#"
-                    onClick={(e) => {
-                      e.preventDefault();
-                      if (currentPage > 1) handlePageChange(currentPage - 1);
-                    }}
-                    className={
-                      currentPage === 1
-                        ? "text-red-500 pointer-events-none opacity-50"
-                        : "text-red-500"
-                    }
-                  />
-                </PaginationItem>
-
-                {getVisiblePages().map((page, index) => (
-                  <PaginationItem key={index}>
-                    {page === "..." ? (
-                      <span className="px-4 text-zinc-500">...</span>
-                    ) : (
-                      <PaginationLink
-                        href="#"
-                        onClick={(e) => {
-                          e.preventDefault();
-                          handlePageChange(page as number);
-                        }}
-                        isActive={currentPage === page}
-                        className="text-blue-500 bg-zinc-900 border-zinc-800 data-[active=true]:bg-blue-500/10 
-                                 data-[active=true]:text-blue-400 data-[active=true]:border-blue-500/20"
-                      >
-                        {page}
-                      </PaginationLink>
-                    )}
-                  </PaginationItem>
-                ))}
-
-                <PaginationItem>
-                  <PaginationNext
-                    href="#"
-                    onClick={(e) => {
-                      e.preventDefault();
-                      if (currentPage < totalPages) handlePageChange(currentPage + 1);
-                    }}
-                    className={
-                      currentPage === totalPages
-                        ? "text-emerald-500 pointer-events-none opacity-50"
-                        : "text-emerald-500"
-                    }
-                  />
-                </PaginationItem>
-              </PaginationContent>
-            </Pagination>
+            <ResponsivePagination
+              currentPage={currentPage}
+              totalPages={totalPages}
+              handlePageChange={handlePageChange}
+              getVisiblePages={getVisiblePages}
+            />
           )}
         </div>
       </CardContent>
