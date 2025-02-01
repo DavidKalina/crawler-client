@@ -1,5 +1,4 @@
 "use client";
-
 import React, { useState } from "react";
 import { Search } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -30,6 +29,7 @@ interface CrawledPagesListProps {
 }
 
 const ITEMS_PER_PAGE = 10;
+const MAX_VISIBLE_PAGES = 5; // Maximum number of page buttons to show
 
 const CrawledPagesList: React.FC<CrawledPagesListProps> = ({ pages, loading, onPageClick }) => {
   const [searchTerm, setSearchTerm] = useState("");
@@ -51,6 +51,44 @@ const CrawledPagesList: React.FC<CrawledPagesListProps> = ({ pages, loading, onP
     document.getElementById("pages-list")?.scrollIntoView({ behavior: "smooth" });
   };
 
+  // Generate the array of page numbers to display
+  const getVisiblePages = () => {
+    const pages = [];
+
+    // Always show first page
+    pages.push(1);
+
+    let start = Math.max(2, currentPage - Math.floor(MAX_VISIBLE_PAGES / 2));
+    const end = Math.min(totalPages - 1, start + MAX_VISIBLE_PAGES - 2);
+
+    // Adjust start if we're near the end
+    if (end === totalPages - 1) {
+      start = Math.max(2, end - (MAX_VISIBLE_PAGES - 2));
+    }
+
+    // Add ellipsis after first page if needed
+    if (start > 2) {
+      pages.push("...");
+    }
+
+    // Add middle pages
+    for (let i = start; i <= end; i++) {
+      pages.push(i);
+    }
+
+    // Add ellipsis before last page if needed
+    if (end < totalPages - 1) {
+      pages.push("...");
+    }
+
+    // Always show last page if there is more than one page
+    if (totalPages > 1) {
+      pages.push(totalPages);
+    }
+
+    return pages;
+  };
+
   return (
     <Card className="bg-zinc-900 border-zinc-800">
       <CardHeader className="pb-3">
@@ -66,7 +104,7 @@ const CrawledPagesList: React.FC<CrawledPagesListProps> = ({ pages, loading, onP
                 value={searchTerm}
                 onChange={(e) => {
                   setSearchTerm(e.target.value);
-                  setCurrentPage(1); // Reset to first page on search
+                  setCurrentPage(1);
                 }}
                 className="pl-8 h-9 bg-zinc-900 border-zinc-800 text-zinc-100 
                          focus-visible:ring-blue-400/20 focus-visible:border-blue-400/20"
@@ -118,20 +156,24 @@ const CrawledPagesList: React.FC<CrawledPagesListProps> = ({ pages, loading, onP
                   />
                 </PaginationItem>
 
-                {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
-                  <PaginationItem key={page}>
-                    <PaginationLink
-                      href="#"
-                      onClick={(e) => {
-                        e.preventDefault();
-                        handlePageChange(page);
-                      }}
-                      isActive={currentPage === page}
-                      className="text-blue-500 bg-zinc-900 border-zinc-800 data-[active=true]:bg-blue-500/10 
-                               data-[active=true]:text-blue-400 data-[active=true]:border-blue-500/20"
-                    >
-                      {page}
-                    </PaginationLink>
+                {getVisiblePages().map((page, index) => (
+                  <PaginationItem key={index}>
+                    {page === "..." ? (
+                      <span className="px-4 text-zinc-500">...</span>
+                    ) : (
+                      <PaginationLink
+                        href="#"
+                        onClick={(e) => {
+                          e.preventDefault();
+                          handlePageChange(page as number);
+                        }}
+                        isActive={currentPage === page}
+                        className="text-blue-500 bg-zinc-900 border-zinc-800 data-[active=true]:bg-blue-500/10 
+                                 data-[active=true]:text-blue-400 data-[active=true]:border-blue-500/20"
+                      >
+                        {page}
+                      </PaginationLink>
+                    )}
                   </PaginationItem>
                 ))}
 
