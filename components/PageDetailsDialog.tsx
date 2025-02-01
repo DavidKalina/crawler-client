@@ -129,11 +129,13 @@ const PageDetailsDialog = ({
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="w-full max-w-full md:max-w-2xl bg-zinc-900 border-zinc-800 p-0 h-full md:h-auto">
-        <DialogHeader className="px-4 md:px-6 py-3 md:py-4 border-b border-zinc-800">
-          <div className="flex items-center justify-between mb-2 md:mb-4">
-            <div className="flex items-center space-x-2">
-              <FileText className="h-3.5 w-3.5 text-blue-400" />
-              <DialogTitle className="text-sm font-medium text-zinc-100">Page Details</DialogTitle>
+        <DialogHeader className="px-4 md:px-6 py-4 border-b border-zinc-800/50">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-2.5 md:space-x-2">
+              <FileText className="h-5 w-5 md:h-4 md:w-4 text-blue-400" />
+              <DialogTitle className="text-xl md:text-base font-medium text-zinc-100">
+                Page Details
+              </DialogTitle>
             </div>
             <div className="flex items-center space-x-3">
               <StatusIndicator status={page.processing_status} />
@@ -148,45 +150,45 @@ const PageDetailsDialog = ({
             </div>
           </div>
 
-          <div className="space-y-1">
-            <h3 className="text-base md:text-lg font-medium text-zinc-100 truncate">
+          <div className="mt-4 md:mt-2 space-y-2 md:space-y-1">
+            <h3 className="text-xl md:text-lg font-medium text-zinc-100 leading-tight">
               {page.title || "Untitled"}
             </h3>
             <a
               href={page.url}
               target="_blank"
               rel="noopener noreferrer"
-              className="text-xs md:text-sm text-blue-400 hover:text-blue-300 flex items-center gap-1.5 w-fit transition-colors truncate"
+              className="text-sm md:text-xs text-blue-400 hover:text-blue-300 flex items-center gap-1.5 transition-colors"
             >
-              {page.url}
-              <ExternalLink className="h-3 w-3 md:h-3.5 md:w-3.5 flex-shrink-0" />
+              <span className="truncate">{page.url}</span>
+              <ExternalLink className="h-4 w-4 md:h-3.5 md:w-3.5 flex-shrink-0" />
             </a>
           </div>
         </DialogHeader>
 
-        <Tabs defaultValue="content" className="p-4 md:p-6">
-          <TabsList className="w-full md:w-auto bg-zinc-800/50 border border-zinc-800">
+        <Tabs defaultValue="content" className="px-4 pt-2 pb-4 md:p-6">
+          <TabsList className="w-full mb-2 md:mb-0 md:w-auto bg-zinc-800/50 border border-zinc-800">
             <TabsTrigger
               value="content"
-              className="flex-1 md:flex-none data-[state=active]:bg-zinc-900 data-[state=active]:text-blue-400 text-zinc-400"
+              className="flex-1 py-3 md:py-2 md:flex-none data-[state=active]:bg-zinc-900 data-[state=active]:text-blue-400 text-zinc-400"
             >
-              <FileText className="h-3.5 w-3.5 mr-1.5" />
+              <FileText className="h-5 w-5 md:h-4 md:w-4 mr-2 md:mr-1.5" />
               Content
             </TabsTrigger>
             <TabsTrigger
               value="data"
-              className="flex-1 md:flex-none data-[state=active]:bg-zinc-900 data-[state=active]:text-blue-400 text-zinc-400"
+              className="flex-1 py-3 md:py-2 md:flex-none data-[state=active]:bg-zinc-900 data-[state=active]:text-blue-400 text-zinc-400"
             >
-              <Code className="h-3.5 w-3.5 mr-1.5" />
+              <Code className="h-5 w-5 md:h-4 md:w-4 mr-2 md:mr-1.5" />
               Raw Data
             </TabsTrigger>
           </TabsList>
 
           <TabsContent value="content" className="mt-4">
             <Card className="bg-zinc-900 border-zinc-800">
-              <CardContent className="p-3 md:p-4 space-y-4">
+              <CardContent className="p-4 md:p-4">
                 <div className="prose prose-zinc prose-invert max-w-none">
-                  <div className="text-xs md:text-sm text-zinc-300">
+                  <div className="text-base md:text-sm leading-relaxed md:leading-normal text-zinc-300">
                     {page.content_text || "No content available"}
                   </div>
                 </div>
