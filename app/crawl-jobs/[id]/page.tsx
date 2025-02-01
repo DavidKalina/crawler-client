@@ -1,14 +1,14 @@
 "use client";
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import React, { useState, useEffect } from "react";
-import { createClient } from "@/utils/supabase/client";
-import { Globe, Link2, AlertCircle, Clock } from "lucide-react";
-import LoadingSplash from "@/components/LoadingComponent";
-import { useParams } from "next/navigation";
 import CrawledPagesList from "@/components/CrawledPagesList";
+import PageDetails from "@/components/DetailsDialog";
+import LoadingSplash from "@/components/LoadingComponent";
 import { StatsCard } from "@/components/StatsCard";
-import PageDetailsDialog from "@/components/PageDetailsDialog";
+import { createClient } from "@/utils/supabase/client";
+import { AlertCircle, Clock, Globe, Link2 } from "lucide-react";
+import { useParams } from "next/navigation";
+import { useEffect, useState } from "react";
 
 const CrawlJobDetailsPage = () => {
   const [stats, setStats] = useState({
@@ -110,7 +110,7 @@ const CrawlJobDetailsPage = () => {
         </div>
       </div>
 
-      <PageDetailsDialog page={selectedPage} open={dialogOpen} onOpenChange={setDialogOpen} />
+      <PageDetails page={selectedPage} open={dialogOpen} onOpenChange={setDialogOpen} />
     </>
   );
 };
