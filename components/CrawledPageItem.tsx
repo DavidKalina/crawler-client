@@ -21,7 +21,7 @@ const CrawledPageItem: React.FC<CrawledPageItemProps> = ({ page, onClick }) => {
   return (
     <div
       onClick={() => onClick(page)}
-      className="p-4 rounded-lg border border-zinc-800 hover:bg-zinc-800/50 
+      className="p-3 rounded-lg border border-zinc-800 hover:bg-zinc-800/50 
                  transition-colors group cursor-pointer"
     >
       <div className="flex items-center justify-between gap-4 flex-wrap">

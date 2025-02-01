@@ -106,8 +106,8 @@ export async function POST(req: Request) {
         package_id: pkg.id,
       },
       customer_email: session.user.email,
-      success_url: `${process.env.BASE_URL}/checkout/success?session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${process.env.BASE_URL}/checkout/cancel`,
+      success_url: `${process.env.NEXT_PUBLIC_BASE_URL}/checkout/success?session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url: `${process.env.NEXT_PUBLIC_BASE_URL}/checkout/cancel`,
     });
 
     return corsResponse({ sessionUrl: checkoutSession.url });
