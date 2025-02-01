@@ -56,19 +56,10 @@ export async function updateSession(request: NextRequest) {
   const isPublicPath =
     path.includes("/auth") ||
     path.includes("/api/") ||
+    path.includes("/") ||
     path.includes("/_next/") ||
     path.includes("/static/") ||
     isResetPasswordPath; // Add this
-
-  if (path === "/") {
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
-
-    const url = request.nextUrl.clone();
-    url.pathname = user ? "/dashboard" : "/auth/login";
-    return NextResponse.redirect(url);
-  }
 
   // Specific auth-related paths
   const isVerifyPath = path.includes("/auth/verify");

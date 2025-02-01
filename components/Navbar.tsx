@@ -12,21 +12,46 @@ import { createClient } from "@/utils/supabase/client";
 import { Box, Diamond, LogOut, Menu, Settings, UserCircle, X } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { User } from "@supabase/supabase-js";
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
+  const [user, setUser] = useState<User | null>(null);
   const router = useRouter();
   const supabase = createClient();
+
+  useEffect(() => {
+    // Get initial auth state
+    supabase.auth.getUser().then(({ data: { user } }) => {
+      setUser(user);
+    });
+
+    // Subscribe to auth changes
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((event, session) => {
+      setUser(session?.user ?? null);
+    });
+
+    return () => {
+      subscription.unsubscribe();
+    };
+  }, []);
 
   const handleSignOut = async () => {
     await supabase.auth.signOut();
     router.push("/auth/login");
   };
 
+  // Navigation items based on auth status
   const navigationItems = [
-    { name: "Settings", href: "/settings", icon: <Settings className="h-4 w-4" /> },
-    { name: "Upgrade", href: "/checkout/upgrade", icon: <Box className="h-4 w-4" /> },
+    ...(user
+      ? [
+          { name: "Settings", href: "/settings", icon: <Settings className="h-4 w-4" /> },
+          { name: "Upgrade", href: "/checkout/upgrade", icon: <Box className="h-4 w-4" /> },
+        ]
+      : []),
   ];
 
   return (
@@ -35,7 +60,7 @@ const Navbar = () => {
         <div className="flex justify-between h-16">
           {/* Logo and brand */}
           <div className="flex items-center">
-            <Link href="/dashboard" className="flex items-center gap-2.5 group">
+            <Link href="/" className="flex items-center gap-2.5 group">
               <div className="relative">
                 <div className="absolute inset-0 bg-blue-500/20 blur-lg rounded-full group-hover:bg-blue-500/30 transition-colors" />
                 <div className="relative p-1.5 rounded-lg bg-zinc-900 border border-zinc-800 group-hover:border-zinc-700 transition-all">
@@ -61,35 +86,45 @@ const Navbar = () => {
               </Link>
             ))}
 
-            {/* User dropdown */}
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="text-zinc-400 hover:text-white hover:bg-zinc-800"
-                >
-                  <UserCircle className="h-6 w-6" />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent className="bg-zinc-900 border-zinc-800">
-                <DropdownMenuItem
-                  onClick={() => router.push("/settings")}
-                  className="text-zinc-400 hover:text-white hover:bg-zinc-800 cursor-pointer flex items-center gap-2"
-                >
-                  <Settings className="h-5 w-5" />
-                  Settings
-                </DropdownMenuItem>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem
-                  onClick={handleSignOut}
-                  className="text-zinc-400 hover:text-white hover:bg-zinc-800 cursor-pointer flex items-center gap-2"
-                >
-                  <LogOut className="h-5 w-5" />
-                  Sign out
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
+            {/* User dropdown - only show when logged in */}
+            {user ? (
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="text-zinc-400 hover:text-white hover:bg-zinc-800"
+                  >
+                    <UserCircle className="h-6 w-6" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent className="bg-zinc-900 border-zinc-800">
+                  <DropdownMenuItem
+                    onClick={() => router.push("/settings")}
+                    className="text-zinc-400 hover:text-white hover:bg-zinc-800 cursor-pointer flex items-center gap-2"
+                  >
+                    <Settings className="h-5 w-5" />
+                    Settings
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem
+                    onClick={handleSignOut}
+                    className="text-zinc-400 hover:text-white hover:bg-zinc-800 cursor-pointer flex items-center gap-2"
+                  >
+                    <LogOut className="h-5 w-5" />
+                    Sign out
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            ) : (
+              <Button
+                variant="ghost"
+                onClick={() => router.push("/auth/login")}
+                className="text-zinc-400 hover:text-white hover:bg-zinc-800"
+              >
+                Sign in
+              </Button>
+            )}
           </div>
 
           {/* Mobile menu button */}
@@ -121,17 +156,30 @@ const Navbar = () => {
                 {item.name}
               </Link>
             ))}
-            <Button
-              variant="ghost"
-              className="w-full text-left px-3 text-zinc-400 hover:text-white hover:bg-zinc-800 flex items-center gap-2"
-              onClick={() => {
-                handleSignOut();
-                setIsOpen(false);
-              }}
-            >
-              <LogOut className="h-5 w-5" />
-              Sign out
-            </Button>
+            {user ? (
+              <Button
+                variant="ghost"
+                className="w-full text-left px-3 text-zinc-400 hover:text-white hover:bg-zinc-800 flex items-center gap-2"
+                onClick={() => {
+                  handleSignOut();
+                  setIsOpen(false);
+                }}
+              >
+                <LogOut className="h-5 w-5" />
+                Sign out
+              </Button>
+            ) : (
+              <Button
+                variant="ghost"
+                className="w-full text-left px-3 text-zinc-400 hover:text-white hover:bg-zinc-800 flex items-center gap-2"
+                onClick={() => {
+                  router.push("/auth/login");
+                  setIsOpen(false);
+                }}
+              >
+                Sign in
+              </Button>
+            )}
           </div>
         </div>
       )}
