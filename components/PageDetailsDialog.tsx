@@ -128,7 +128,7 @@ const PageDetailsDialog = ({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="w-full max-w-full md:max-w-2xl bg-zinc-900 border-zinc-800 p-0 h-full md:h-auto">
+      <DialogContent className="w-full max-w-md md:max-w-2xl bg-zinc-900 border-zinc-800 p-0 h-full md:h-auto">
         <DialogHeader className="px-4 md:px-6 py-4 border-b border-zinc-800/50">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-2.5 md:space-x-2">
