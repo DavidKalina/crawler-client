@@ -114,8 +114,6 @@ export async function stopCrawlJob(jobId: string): ActionResult {
 
     // Add debugging logs
     const url = `${process.env.BASE_URL}/api/crawl/stop/${validatedId}`;
-    console.log("Attempting to stop crawl with URL:", url);
-    console.log("Auth token present:", !!session.access_token);
 
     const response = await fetch(url, {
       method: "POST",
@@ -125,12 +123,9 @@ export async function stopCrawlJob(jobId: string): ActionResult {
       },
     });
 
-    // Log the response details
-    console.log("Response status:", response.status);
-    console.log("Response status text:", response.statusText);
-
     const responseText = await response.text();
-    console.log("Raw response:", responseText);
+
+    console.log(responseText);
 
     // Try to parse the response as JSON if possible
     let jsonResponse;
