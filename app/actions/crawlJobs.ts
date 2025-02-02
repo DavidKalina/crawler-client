@@ -112,23 +112,12 @@ export async function stopCrawlJob(jobId: string): ActionResult {
       return { success: false, error: "No valid session" };
     }
 
-    // Verify job belongs to user
-    const { data: job } = await supabase
-      .from("web_crawl_jobs")
-      .select("user_id, status")
-      .eq("id", validatedId)
-      .single();
+    // Add debugging logs
+    const url = `${process.env.BASE_URL}/api/crawl/${validatedId}/stop`;
+    console.log("Attempting to stop crawl with URL:", url);
+    console.log("Auth token present:", !!session.access_token);
 
-    if (!job || job.user_id !== user.id) {
-      return { success: false, error: "Unauthorized" };
-    }
-
-    if (job.status !== "running" && job.status !== "pending") {
-      return { success: false, error: "Job is not running or pending" };
-    }
-
-    // Make the API request with the auth token
-    const response = await fetch(`${process.env.BASE_URL}/api/crawl/${jobId}/stop`, {
+    const response = await fetch(url, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -136,12 +125,26 @@ export async function stopCrawlJob(jobId: string): ActionResult {
       },
     });
 
-    console.log("RESPONSE", response);
+    // Log the response details
+    console.log("Response status:", response.status);
+    console.log("Response status text:", response.statusText);
+
+    const responseText = await response.text();
+    console.log("Raw response:", responseText);
+
+    // Try to parse the response as JSON if possible
+    let jsonResponse;
+    try {
+      jsonResponse = JSON.parse(responseText);
+    } catch {
+      console.log("Could not parse response as JSON");
+    }
 
     if (!response.ok) {
-      const errorData = await response.json().catch(() => null);
       throw new Error(
-        errorData?.error || errorData?.message || `Failed to stop crawl: ${response.statusText}`
+        jsonResponse?.error ||
+          jsonResponse?.message ||
+          `Failed to stop crawl: ${response.statusText}`
       );
     }
 
