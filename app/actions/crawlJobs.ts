@@ -95,9 +95,21 @@ export async function stopCrawlJob(jobId: string): ActionResult {
     // Get user session
     const {
       data: { user },
+      error: userError,
     } = await supabase.auth.getUser();
-    if (!user) {
+
+    if (userError || !user) {
       return { success: false, error: "Unauthorized" };
+    }
+
+    // Get the session token
+    const {
+      data: { session },
+      error: sessionError,
+    } = await supabase.auth.getSession();
+
+    if (sessionError || !session) {
+      return { success: false, error: "No valid session" };
     }
 
     // Verify job belongs to user
@@ -115,15 +127,20 @@ export async function stopCrawlJob(jobId: string): ActionResult {
       return { success: false, error: "Job is not running or pending" };
     }
 
-    const response = await fetch(`${process.env.BASE_URL}/api/queue/stop/${jobId}`, {
+    // Make the API request with the auth token
+    const response = await fetch(`${process.env.BASE_URL}/api/crawl/${jobId}/stop`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
+        Authorization: `Bearer ${session.access_token}`,
       },
     });
 
     if (!response.ok) {
-      throw new Error("Failed to stop crawl");
+      const errorData = await response.json().catch(() => null);
+      throw new Error(
+        errorData?.error || errorData?.message || `Failed to stop crawl: ${response.statusText}`
+      );
     }
 
     revalidatePath("/dashboard");
@@ -136,7 +153,6 @@ export async function stopCrawlJob(jobId: string): ActionResult {
     };
   }
 }
-
 export async function getCrawlStats(jobId: string): ActionResult<CrawlStats> {
   try {
     const validatedId = jobIdSchema.parse(jobId);

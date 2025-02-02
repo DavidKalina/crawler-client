@@ -54,6 +54,13 @@ export const getStatusColor = (status: WebCrawlJob["status"]) => {
         text: "text-emerald-400",
         icon: <CheckCircle2 className="w-3.5 h-3.5 md:w-4 md:h-4 2xl:w-4 2xl:h-4" />,
       };
+    case "canceled":
+      return {
+        bg: "bg-rose-500/10",
+        border: "border-rose-500/20",
+        text: "text-rose-400",
+        icon: <XCircle className="w-3.5 h-3.5 md:w-4 md:h-4 2xl:w-4 2xl:h-4" />,
+      };
     default:
       return {
         bg: "bg-zinc-500/10",

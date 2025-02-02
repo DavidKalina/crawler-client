@@ -11,7 +11,8 @@ export interface WebCrawlJob {
     | "completed"
     | "failed"
     | "crawled"
-    | "stopped";
+    | "stopped"
+    | "canceled";
   created_at: string;
   completed_at?: string;
   updated_at: string;
