@@ -136,6 +136,8 @@ export async function stopCrawlJob(jobId: string): ActionResult {
       },
     });
 
+    console.log("RESPONSE", response.ok);
+
     if (!response.ok) {
       const errorData = await response.json().catch(() => null);
       throw new Error(
@@ -146,7 +148,7 @@ export async function stopCrawlJob(jobId: string): ActionResult {
     revalidatePath("/dashboard");
     return { success: true, data: undefined };
   } catch (error) {
-    console.error("Error stopping crawl job:", error);
+    console.log("Error stopping crawl job:", error);
     return {
       success: false,
       error: error instanceof Error ? error.message : "Failed to stop crawl job",
