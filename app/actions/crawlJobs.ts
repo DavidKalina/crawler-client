@@ -136,7 +136,7 @@ export async function stopCrawlJob(jobId: string): ActionResult {
       },
     });
 
-    console.log("RESPONSE", response.ok);
+    console.log("RESPONSE", response);
 
     if (!response.ok) {
       const errorData = await response.json().catch(() => null);
