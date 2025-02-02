@@ -113,7 +113,7 @@ export async function stopCrawlJob(jobId: string): ActionResult {
     }
 
     // Add debugging logs
-    const url = `${process.env.BASE_URL}/api/crawl/${validatedId}/stop`;
+    const url = `${process.env.BASE_URL}/api/crawl/stop/${validatedId}`;
     console.log("Attempting to stop crawl with URL:", url);
     console.log("Auth token present:", !!session.access_token);
 
