@@ -114,6 +114,8 @@ export async function stopCrawlJob(jobId: string): ActionResult {
 
     const url = `${process.env.BASE_URL}/api/crawl/stop/${validatedId}`;
 
+    console.log("Bearer", session.access_token);
+
     console.log("REQUEST_URL", url);
 
     const response = await fetch(url, {
