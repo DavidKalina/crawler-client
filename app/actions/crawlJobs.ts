@@ -112,8 +112,9 @@ export async function stopCrawlJob(jobId: string): ActionResult {
       return { success: false, error: "No valid session" };
     }
 
-    // Add debugging logs
     const url = `${process.env.BASE_URL}/api/crawl/stop/${validatedId}`;
+
+    console.log("REQUEST_URL", url);
 
     const response = await fetch(url, {
       method: "POST",
