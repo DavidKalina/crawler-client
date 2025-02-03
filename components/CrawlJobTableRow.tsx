@@ -1,6 +1,7 @@
 "use client";
 
 import { WebCrawlJob } from "@/types/jobTypes";
+import { createClient } from "@/utils/supabase/client";
 import { format } from "date-fns";
 import React, { useEffect, useState } from "react";
 import { PaginationState } from "./CrawlJobTable";
@@ -8,8 +9,6 @@ import DeleteCrawlJobButton from "./DeleteCrawlJob";
 import DownloadCrawledPages from "./DownloadCrawledPages";
 import { StatusIndicator } from "./StatusIndicator";
 import { TableCell, TableRow } from "./ui/table";
-import { createClient } from "@/utils/supabase/client";
-import StopCrawlButton from "./StopCrawlButton";
 
 interface CrawlJobTableRowProps {
   initialJob: WebCrawlJob;
@@ -102,7 +101,7 @@ const CrawlJobTableRow: React.FC<CrawlJobTableRowProps> = ({
       <TableCell className="p-4 2xl:p-6">
         <div className="flex items-center gap-3 opacity-80 group-hover:opacity-100 transition-opacity">
           <DownloadCrawledPages crawlJobId={job.id} />
-          <StopCrawlButton crawlJobId={job.id} status={job.status} />
+          {/* <StopCrawlButton crawlJobId={job.id} status={job.status} /> */}
           <DeleteCrawlJobButton crawlJobId={job.id} status={job.status} />
         </div>
       </TableCell>
