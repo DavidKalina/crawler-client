@@ -95,48 +95,61 @@ export async function stopCrawlJob(jobId: string): ActionResult {
     // Get user session
     const {
       data: { user },
+      error: userError,
     } = await supabase.auth.getUser();
-    if (!user) {
+
+    if (userError || !user) {
       return { success: false, error: "Unauthorized" };
     }
 
-    // Verify job belongs to user
-    const { data: job } = await supabase
-      .from("web_crawl_jobs")
-      .select("user_id, status")
-      .eq("id", validatedId)
-      .single();
+    // Get the session token
+    const {
+      data: { session },
+      error: sessionError,
+    } = await supabase.auth.getSession();
 
-    if (!job || job.user_id !== user.id) {
-      return { success: false, error: "Unauthorized" };
+    if (sessionError || !session) {
+      return { success: false, error: "No valid session" };
     }
 
-    if (job.status !== "running" && job.status !== "pending") {
-      return { success: false, error: "Job is not running or pending" };
-    }
+    const url = `${process.env.BASE_URL}/api/crawl/stop/${validatedId}`;
 
-    const response = await fetch(`${process.env.BASE_URL}/api/queue/stop/${jobId}`, {
+    const response = await fetch(url, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
+        Authorization: `Bearer ${session.access_token}`,
       },
     });
 
+    const responseText = await response.text();
+
+    // Try to parse the response as JSON if possible
+    let jsonResponse;
+    try {
+      jsonResponse = JSON.parse(responseText);
+    } catch {
+      console.log("Could not parse response as JSON");
+    }
+
     if (!response.ok) {
-      throw new Error("Failed to stop crawl");
+      throw new Error(
+        jsonResponse?.error ||
+          jsonResponse?.message ||
+          `Failed to stop crawl: ${response.statusText}`
+      );
     }
 
     revalidatePath("/dashboard");
     return { success: true, data: undefined };
   } catch (error) {
-    console.error("Error stopping crawl job:", error);
+    console.log("Error stopping crawl job:", error);
     return {
       success: false,
       error: error instanceof Error ? error.message : "Failed to stop crawl job",
     };
   }
 }
-
 export async function getCrawlStats(jobId: string): ActionResult<CrawlStats> {
   try {
     const validatedId = jobIdSchema.parse(jobId);

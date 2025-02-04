@@ -23,7 +23,7 @@ const StopCrawlButton = ({
   const stopCrawl = async (e: React.MouseEvent) => {
     setIsLoading(true);
 
-    e.stopPropagation(); // Prevent row click when clicking stop button
+    e.stopPropagation();
 
     try {
       const { success } = await stopCrawlJob(crawlJobId);
@@ -43,7 +43,8 @@ const StopCrawlButton = ({
         description: "Successfully stopped crawl job",
       });
     } catch (error) {
-      console.error("Error stopping crawl:", error);
+      console.log(error);
+      // console.error("Error stopping crawl:", error);
     } finally {
       setIsLoading(false);
     }
